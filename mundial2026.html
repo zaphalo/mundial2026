@@ -1,0 +1,1174 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Álbum Mundial 2026 Franco</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<style>
+  :root {
+    --green: #2d6a4f;
+    --green-light: #d8f3dc;
+    --green-mid: #52b788;
+    --amber: #e76f51;
+    --amber-light: #fde8df;
+    --blue: #1e6091;
+    --blue-light: #e0f0ff;
+    --gray: #6c757d;
+    --gray-light: #f8f9fa;
+    --border: #e9ecef;
+    --text: #1a1a2e;
+    --text-muted: #6c757d;
+    --bg: #f0f4f0;
+    --surface: #ffffff;
+    --radius: 12px;
+    --radius-sm: 8px;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: 'Outfit', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+  }
+
+  input, select, button, textarea {
+    font-family: 'Outfit', sans-serif;
+  }
+
+  /* AUTH */
+  .auth-screen {
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: linear-gradient(135deg, #1a472a 0%, #2d6a4f 50%, #1e6091 100%);
+    padding: 1.5rem;
+  }
+
+  .auth-card {
+    background: white;
+    border-radius: 20px;
+    padding: 2.5rem;
+    width: 100%;
+    max-width: 400px;
+    box-shadow: 0 20px 60px rgba(0,0,0,0.2);
+  }
+
+  .auth-logo {
+    text-align: center;
+    margin-bottom: 1.75rem;
+  }
+
+  .auth-logo .ball {
+    font-size: 48px;
+    display: block;
+    margin-bottom: 8px;
+  }
+
+  .auth-logo h1 {
+    font-size: 22px;
+    font-weight: 700;
+    color: var(--text);
+    line-height: 1.2;
+  }
+
+  .auth-logo p {
+    font-size: 13px;
+    color: var(--text-muted);
+    margin-top: 4px;
+  }
+
+  .tabs {
+    display: flex;
+    background: var(--gray-light);
+    border-radius: var(--radius-sm);
+    padding: 3px;
+    margin-bottom: 1.5rem;
+  }
+
+  .tab-btn {
+    flex: 1;
+    padding: 8px;
+    border: none;
+    background: transparent;
+    border-radius: 6px;
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--text-muted);
+    cursor: pointer;
+    transition: all 0.15s;
+  }
+
+  .tab-btn.active {
+    background: white;
+    color: var(--text);
+    box-shadow: 0 1px 4px rgba(0,0,0,0.1);
+  }
+
+  .form-group {
+    margin-bottom: 14px;
+  }
+
+  .form-label {
+    display: block;
+    font-size: 12px;
+    font-weight: 500;
+    color: var(--text-muted);
+    margin-bottom: 5px;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+  }
+
+  .form-input {
+    width: 100%;
+    padding: 10px 14px;
+    border: 1.5px solid var(--border);
+    border-radius: var(--radius-sm);
+    font-size: 14px;
+    color: var(--text);
+    background: white;
+    transition: border-color 0.15s;
+    outline: none;
+  }
+
+  .form-input:focus {
+    border-color: var(--green-mid);
+  }
+
+  .btn-primary {
+    width: 100%;
+    padding: 12px;
+    background: var(--green);
+    color: white;
+    border: none;
+    border-radius: var(--radius-sm);
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: opacity 0.15s;
+    margin-top: 4px;
+  }
+
+  .btn-primary:hover { opacity: 0.88; }
+  .btn-primary:disabled { opacity: 0.5; cursor: not-allowed; }
+
+  .error-msg {
+    font-size: 12px;
+    color: #c0392b;
+    background: #fdf0ef;
+    border-radius: 6px;
+    padding: 8px 12px;
+    margin-top: 10px;
+    display: none;
+  }
+
+  /* APP LAYOUT */
+  .app { display: none; min-height: 100vh; flex-direction: column; }
+  .app.visible { display: flex; }
+
+  .app-header {
+    background: var(--green);
+    color: white;
+    padding: 0 1.25rem;
+    height: 56px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    position: sticky;
+    top: 0;
+    z-index: 50;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+  }
+
+  .header-brand {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 16px;
+    font-weight: 700;
+  }
+
+  .header-user {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 13px;
+    opacity: 0.9;
+  }
+
+  .logout-btn {
+    background: rgba(255,255,255,0.15);
+    border: none;
+    color: white;
+    padding: 6px 12px;
+    border-radius: 6px;
+    font-size: 12px;
+    font-weight: 500;
+    cursor: pointer;
+    font-family: 'Outfit', sans-serif;
+  }
+  .logout-btn:hover { background: rgba(255,255,255,0.25); }
+
+  .nav-bar {
+    background: white;
+    border-bottom: 1.5px solid var(--border);
+    display: flex;
+    padding: 0 1rem;
+    position: sticky;
+    top: 56px;
+    z-index: 40;
+  }
+
+  .nav-item {
+    padding: 14px 16px;
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--text-muted);
+    border-bottom: 2.5px solid transparent;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    transition: color 0.15s;
+    background: none;
+    border-top: none;
+    border-left: none;
+    border-right: none;
+    font-family: 'Outfit', sans-serif;
+  }
+
+  .nav-item.active {
+    color: var(--green);
+    border-bottom-color: var(--green);
+  }
+
+  .main-content {
+    flex: 1;
+    padding: 1.25rem;
+    max-width: 900px;
+    margin: 0 auto;
+    width: 100%;
+  }
+
+  .tab-panel { display: none; }
+  .tab-panel.active { display: block; }
+
+  /* STATS */
+  .stats-row {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 10px;
+    margin-bottom: 1rem;
+  }
+
+  .stat-box {
+    background: white;
+    border-radius: var(--radius);
+    padding: 1rem;
+    text-align: center;
+    border: 1.5px solid var(--border);
+  }
+
+  .stat-num {
+    font-size: 26px;
+    font-weight: 700;
+    color: var(--green);
+    font-family: 'DM Mono', monospace;
+  }
+
+  .stat-label {
+    font-size: 11px;
+    color: var(--text-muted);
+    margin-top: 2px;
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+  }
+
+  .progress-wrap {
+    background: var(--border);
+    border-radius: 999px;
+    height: 8px;
+    overflow: hidden;
+    margin-bottom: 1.25rem;
+  }
+
+  .progress-bar {
+    height: 100%;
+    background: linear-gradient(90deg, var(--green-mid), var(--green));
+    border-radius: 999px;
+    transition: width 0.4s ease;
+  }
+
+  /* FILTERS */
+  .filters {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 1rem;
+    flex-wrap: wrap;
+  }
+
+  .filters input, .filters select {
+    padding: 8px 12px;
+    border: 1.5px solid var(--border);
+    border-radius: var(--radius-sm);
+    font-size: 13px;
+    color: var(--text);
+    background: white;
+    outline: none;
+  }
+
+  .filters input:focus, .filters select:focus {
+    border-color: var(--green-mid);
+  }
+
+  .filters input { flex: 1; min-width: 140px; }
+
+  /* STICKERS */
+  .group-label {
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    padding: 10px 0 6px;
+    border-bottom: 1.5px solid var(--border);
+    margin-bottom: 8px;
+    margin-top: 16px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+
+  .sticker-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(60px, 1fr));
+    gap: 5px;
+  }
+
+  .sticker-cell {
+    border: 1.5px solid var(--border);
+    border-radius: 8px;
+    padding: 6px 4px;
+    text-align: center;
+    cursor: pointer;
+    transition: all 0.12s;
+    background: white;
+    position: relative;
+    user-select: none;
+  }
+
+  .sticker-cell:hover { transform: scale(1.05); box-shadow: 0 2px 8px rgba(0,0,0,0.1); }
+
+  .sticker-cell.have {
+    background: var(--green-light);
+    border-color: var(--green-mid);
+  }
+
+  .sticker-cell.repeated {
+    background: var(--amber-light);
+    border-color: var(--amber);
+  }
+
+  .sticker-num {
+    font-size: 12px;
+    font-weight: 600;
+    display: block;
+    font-family: 'DM Mono', monospace;
+    color: var(--text);
+  }
+
+  .rep-badge {
+    position: absolute;
+    top: 2px;
+    right: 3px;
+    font-size: 8px;
+    font-weight: 700;
+    background: var(--amber);
+    color: white;
+    border-radius: 4px;
+    padding: 1px 3px;
+    line-height: 1.4;
+  }
+
+  /* MODAL */
+  .modal-bg {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.4);
+    z-index: 200;
+    align-items: center;
+    justify-content: center;
+    padding: 1rem;
+  }
+
+  .modal-bg.open { display: flex; }
+
+  .modal-box {
+    background: white;
+    border-radius: 16px;
+    padding: 1.75rem;
+    width: 100%;
+    max-width: 320px;
+    box-shadow: 0 20px 60px rgba(0,0,0,0.2);
+  }
+
+  .modal-title { font-size: 18px; font-weight: 700; margin-bottom: 4px; }
+  .modal-sub { font-size: 13px; color: var(--text-muted); margin-bottom: 1.25rem; }
+
+  .modal-actions { display: flex; flex-direction: column; gap: 8px; }
+
+  .btn-action {
+    padding: 10px 16px;
+    border-radius: 8px;
+    border: 1.5px solid var(--border);
+    background: white;
+    font-size: 13px;
+    font-weight: 500;
+    cursor: pointer;
+    color: var(--text);
+    font-family: 'Outfit', sans-serif;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    transition: all 0.12s;
+  }
+
+  .btn-action:hover { background: var(--gray-light); }
+  .btn-action.green { background: var(--green-light); border-color: var(--green-mid); color: var(--green); }
+  .btn-action.amber { background: var(--amber-light); border-color: var(--amber); color: #c0392b; }
+
+  .rep-row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    background: #fff8f5;
+    border: 1.5px solid #f5cdb8;
+    border-radius: 8px;
+    padding: 8px 12px;
+  }
+
+  .rep-row span {
+    flex: 1;
+    text-align: center;
+    font-size: 13px;
+    font-weight: 600;
+    font-family: 'DM Mono', monospace;
+  }
+
+  .rep-btn {
+    width: 30px;
+    height: 30px;
+    border-radius: 6px;
+    border: 1.5px solid var(--border);
+    background: white;
+    font-size: 16px;
+    font-weight: 700;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: 'Outfit', sans-serif;
+  }
+
+  .rep-btn:hover { background: var(--gray-light); }
+
+  .modal-close {
+    width: 100%;
+    margin-top: 12px;
+    padding: 10px;
+    border: 1.5px solid var(--border);
+    background: white;
+    border-radius: 8px;
+    font-size: 13px;
+    font-weight: 500;
+    cursor: pointer;
+    font-family: 'Outfit', sans-serif;
+  }
+
+  /* FRIENDS */
+  .card {
+    background: white;
+    border: 1.5px solid var(--border);
+    border-radius: var(--radius);
+    padding: 1.25rem;
+    margin-bottom: 1rem;
+  }
+
+  .search-row {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 1rem;
+  }
+
+  .search-row input {
+    flex: 1;
+    padding: 10px 14px;
+    border: 1.5px solid var(--border);
+    border-radius: var(--radius-sm);
+    font-size: 13px;
+    outline: none;
+    font-family: 'Outfit', sans-serif;
+  }
+
+  .search-row input:focus { border-color: var(--green-mid); }
+
+  .btn-search {
+    padding: 10px 18px;
+    background: var(--green);
+    color: white;
+    border: none;
+    border-radius: var(--radius-sm);
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    font-family: 'Outfit', sans-serif;
+  }
+
+  .friend-row {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 10px 0;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .friend-row:last-child { border-bottom: none; }
+
+  .avatar {
+    width: 38px;
+    height: 38px;
+    border-radius: 50%;
+    background: var(--green-light);
+    color: var(--green);
+    font-size: 13px;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+  }
+
+  .friend-info { flex: 1; }
+  .friend-name { font-size: 14px; font-weight: 600; }
+  .friend-meta { font-size: 11px; color: var(--text-muted); margin-top: 1px; }
+
+  .btn-small {
+    padding: 6px 12px;
+    border-radius: 6px;
+    border: 1.5px solid var(--border);
+    background: white;
+    font-size: 12px;
+    font-weight: 500;
+    cursor: pointer;
+    font-family: 'Outfit', sans-serif;
+  }
+
+  .btn-small.add { border-color: var(--green-mid); color: var(--green); }
+  .btn-small.remove { border-color: #e74c3c; color: #e74c3c; }
+  .btn-small:hover { background: var(--gray-light); }
+
+  /* INTERCAMBIO */
+  .section-title {
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    margin-bottom: 10px;
+  }
+
+  .chips-wrap {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 4px;
+    margin-bottom: 16px;
+  }
+
+  .chip {
+    font-size: 10px;
+    font-weight: 600;
+    padding: 3px 8px;
+    border-radius: 999px;
+    font-family: 'DM Mono', monospace;
+  }
+
+  .chip-green { background: var(--green-light); color: var(--green); }
+  .chip-amber { background: var(--amber-light); color: #c0392b; }
+
+  .friend-btn-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    margin-bottom: 1rem;
+  }
+
+  .friend-pick-btn {
+    padding: 8px 14px;
+    border-radius: 8px;
+    border: 1.5px solid var(--border);
+    background: white;
+    font-size: 13px;
+    font-weight: 500;
+    cursor: pointer;
+    font-family: 'Outfit', sans-serif;
+    transition: all 0.12s;
+  }
+
+  .friend-pick-btn:hover, .friend-pick-btn.active {
+    background: var(--green-light);
+    border-color: var(--green-mid);
+    color: var(--green);
+  }
+
+  .empty {
+    text-align: center;
+    padding: 2.5rem 1rem;
+    color: var(--text-muted);
+    font-size: 13px;
+  }
+
+  .loading {
+    text-align: center;
+    padding: 2rem;
+    color: var(--text-muted);
+    font-size: 13px;
+  }
+
+  .spinner {
+    display: inline-block;
+    width: 18px;
+    height: 18px;
+    border: 2px solid var(--border);
+    border-top-color: var(--green);
+    border-radius: 50%;
+    animation: spin 0.7s linear infinite;
+    vertical-align: middle;
+    margin-right: 6px;
+  }
+
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  @media (max-width: 500px) {
+    .stats-row { grid-template-columns: repeat(2, 1fr); }
+    .sticker-grid { grid-template-columns: repeat(auto-fill, minmax(50px, 1fr)); }
+  }
+</style>
+</head>
+<body>
+
+<!-- AUTH -->
+<div class="auth-screen" id="auth-screen">
+  <div class="auth-card">
+    <div class="auth-logo">
+      <span class="ball">⚽</span>
+      <h1>Álbum Mundial 2026</h1>
+      <p>USA · Canada · México</p>
+    </div>
+
+    <div class="tabs">
+      <button class="tab-btn active" onclick="switchAuthTab('login')">Iniciar sesión</button>
+      <button class="tab-btn" onclick="switchAuthTab('register')">Registrarse</button>
+    </div>
+
+    <div id="auth-login">
+      <div class="form-group">
+        <label class="form-label">Email</label>
+        <input class="form-input" type="email" id="login-email" placeholder="tu@email.com" />
+      </div>
+      <div class="form-group">
+        <label class="form-label">Contraseña</label>
+        <input class="form-input" type="password" id="login-pass" placeholder="Tu contraseña" onkeydown="if(event.key==='Enter') doLogin()" />
+      </div>
+      <div class="error-msg" id="login-err"></div>
+      <button class="btn-primary" id="login-btn" onclick="doLogin()">Entrar</button>
+    </div>
+
+    <div id="auth-register" style="display:none;">
+      <div class="form-group">
+        <label class="form-label">Nombre</label>
+        <input class="form-input" type="text" id="reg-name" placeholder="Tu nombre" />
+      </div>
+      <div class="form-group">
+        <label class="form-label">Email</label>
+        <input class="form-input" type="email" id="reg-email" placeholder="tu@email.com" />
+      </div>
+      <div class="form-group">
+        <label class="form-label">Contraseña</label>
+        <input class="form-input" type="password" id="reg-pass" placeholder="Mínimo 6 caracteres" onkeydown="if(event.key==='Enter') doRegister()" />
+      </div>
+      <div class="error-msg" id="reg-err"></div>
+      <button class="btn-primary" id="reg-btn" onclick="doRegister()">Crear cuenta</button>
+    </div>
+  </div>
+</div>
+
+<!-- APP -->
+<div class="app" id="app">
+  <div class="app-header">
+    <div class="header-brand">⚽ Mundial 2026</div>
+    <div class="header-user">
+      <span id="header-name"></span>
+      <button class="logout-btn" onclick="doLogout()">Salir</button>
+    </div>
+  </div>
+
+  <div class="nav-bar">
+    <button class="nav-item active" onclick="goTab('album')" id="nav-album">📋 Álbum</button>
+    <button class="nav-item" onclick="goTab('amigos')" id="nav-amigos">👥 Amigos</button>
+    <button class="nav-item" onclick="goTab('intercambio')" id="nav-intercambio">🔄 Intercambio</button>
+  </div>
+
+  <div class="main-content">
+
+    <!-- ALBUM -->
+    <div class="tab-panel active" id="panel-album">
+      <div class="stats-row" id="stats-row">
+        <div class="stat-box"><div class="stat-num" id="s-have">0</div><div class="stat-label">Tengo</div></div>
+        <div class="stat-box"><div class="stat-num" id="s-missing">670</div><div class="stat-label">Faltan</div></div>
+        <div class="stat-box"><div class="stat-num" id="s-rep">0</div><div class="stat-label">Repetidas</div></div>
+        <div class="stat-box"><div class="stat-num" id="s-pct">0%</div><div class="stat-label">Completo</div></div>
+      </div>
+      <div class="progress-wrap"><div class="progress-bar" id="prog" style="width:0%"></div></div>
+      <div class="filters">
+        <input type="text" id="f-search" placeholder="Buscar número o equipo..." oninput="renderGrid()" />
+        <select id="f-team" onchange="renderGrid()">
+          <option value="">Todos los equipos</option>
+        </select>
+        <select id="f-status" onchange="renderGrid()">
+          <option value="">Todas</option>
+          <option value="missing">Me faltan</option>
+          <option value="have">Tengo</option>
+          <option value="repeated">Repetidas</option>
+        </select>
+      </div>
+      <div id="album-grid"></div>
+    </div>
+
+    <!-- AMIGOS -->
+    <div class="tab-panel" id="panel-amigos">
+      <div class="search-row">
+        <input type="text" id="friend-q" placeholder="Buscar por nombre o email..." />
+        <button class="btn-search" onclick="searchUsers()">Buscar</button>
+      </div>
+      <div id="search-results"></div>
+      <div class="section-title" style="margin-top:1rem;">Mis amigos</div>
+      <div class="card" id="friends-list"><div class="empty">Todavía no tenés amigos agregados.</div></div>
+    </div>
+
+    <!-- INTERCAMBIO -->
+    <div class="tab-panel" id="panel-intercambio">
+      <p style="font-size:13px; color:var(--text-muted); margin-bottom:1rem;">Seleccioná un amigo para ver qué figuritas pueden intercambiar.</p>
+      <div class="friend-btn-row" id="intercambio-friend-btns"><div class="empty">Agregá amigos para poder comparar colecciones.</div></div>
+      <div id="intercambio-result"></div>
+    </div>
+
+  </div>
+</div>
+
+<!-- MODAL -->
+<div class="modal-bg" id="modal">
+  <div class="modal-box">
+    <div class="modal-title" id="m-title">Figurita #1</div>
+    <div class="modal-sub" id="m-sub">Equipo</div>
+    <div class="modal-actions">
+      <button class="btn-action green" onclick="setState('have')">✅ La tengo</button>
+      <div class="rep-row">
+        <button class="rep-btn" onclick="changeRep(-1)">−</button>
+        <span id="m-rep">0 repetidas</span>
+        <button class="rep-btn" onclick="changeRep(1)">+</button>
+      </div>
+      <button class="btn-action amber" onclick="setState('missing')">❌ Me falta</button>
+    </div>
+    <button class="modal-close" onclick="closeModal()">Cerrar</button>
+  </div>
+</div>
+
+<script>
+const SUPABASE_URL = 'https://wldqgmuypvhhtvbyllwm.supabase.co';
+const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6IndsZHFnbXV5cHZoaHR2YnlsbHdtIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzg1MzA3MDIsImV4cCI6MjA5NDEwNjcwMn0.hgdX6DD_FsZ9OGtDtOcHo30En0NIr3wzmDJTlpgU24A';
+const sb = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+const TEAMS = [
+  {id:"esp",name:"España",flag:"🇪🇸",start:1,count:18},
+  {id:"arg",name:"Argentina",flag:"🇦🇷",start:19,count:18},
+  {id:"bra",name:"Brasil",flag:"🇧🇷",start:37,count:18},
+  {id:"fra",name:"Francia",flag:"🇫🇷",start:55,count:18},
+  {id:"ing",name:"Inglaterra",flag:"🏴󠁧󠁢󠁥󠁮󠁧󠁿",start:73,count:18},
+  {id:"ale",name:"Alemania",flag:"🇩🇪",start:91,count:18},
+  {id:"por",name:"Portugal",flag:"🇵🇹",start:109,count:18},
+  {id:"ned",name:"Países Bajos",flag:"🇳🇱",start:127,count:18},
+  {id:"bel",name:"Bélgica",flag:"🇧🇪",start:145,count:18},
+  {id:"ita",name:"Italia",flag:"🇮🇹",start:163,count:18},
+  {id:"uru",name:"Uruguay",flag:"🇺🇾",start:181,count:18},
+  {id:"col",name:"Colombia",flag:"🇨🇴",start:199,count:18},
+  {id:"mex",name:"México",flag:"🇲🇽",start:217,count:18},
+  {id:"usa",name:"USA",flag:"🇺🇸",start:235,count:18},
+  {id:"can",name:"Canadá",flag:"🇨🇦",start:253,count:18},
+  {id:"cro",name:"Croacia",flag:"🇭🇷",start:271,count:18},
+  {id:"mar",name:"Marruecos",flag:"🇲🇦",start:289,count:18},
+  {id:"sen",name:"Senegal",flag:"🇸🇳",start:307,count:18},
+  {id:"jpn",name:"Japón",flag:"🇯🇵",start:325,count:18},
+  {id:"kor",name:"Corea del Sur",flag:"🇰🇷",start:343,count:18},
+  {id:"aus",name:"Australia",flag:"🇦🇺",start:361,count:18},
+  {id:"ecu",name:"Ecuador",flag:"🇪🇨",start:379,count:18},
+  {id:"per",name:"Perú",flag:"🇵🇪",start:397,count:18},
+  {id:"chi",name:"Chile",flag:"🇨🇱",start:415,count:18},
+  {id:"ven",name:"Venezuela",flag:"🇻🇪",start:433,count:18},
+  {id:"par",name:"Paraguay",flag:"🇵🇾",start:451,count:18},
+  {id:"bol",name:"Bolivia",flag:"🇧🇴",start:469,count:18},
+  {id:"irn",name:"Irán",flag:"🇮🇷",start:487,count:18},
+  {id:"sau",name:"Arabia Saudita",flag:"🇸🇦",start:505,count:18},
+  {id:"gha",name:"Ghana",flag:"🇬🇭",start:523,count:18},
+  {id:"tun",name:"Túnez",flag:"🇹🇳",start:541,count:18},
+  {id:"nga",name:"Nigeria",flag:"🇳🇬",start:559,count:18},
+  {id:"cam",name:"Camerún",flag:"🇨🇲",start:577,count:18},
+  {id:"alg",name:"Argelia",flag:"🇩🇿",start:595,count:18},
+  {id:"ser",name:"Serbia",flag:"🇷🇸",start:613,count:18},
+  {id:"pol",name:"Polonia",flag:"🇵🇱",start:631,count:18},
+  {id:"est",name:"Estadios",flag:"🏟️",start:649,count:22},
+];
+
+const ALL = [];
+for (const t of TEAMS) {
+  for (let i = 0; i < t.count; i++) {
+    ALL.push({ num: t.start + i, team: t.id, teamName: t.name, flag: t.flag });
+  }
+}
+
+let currentUser = null;
+let myStickers = {};
+let myFriends = [];
+let modalNum = null;
+
+// --- AUTH ---
+function switchAuthTab(tab) {
+  document.querySelectorAll('.tab-btn').forEach((b,i) => b.classList.toggle('active', (i===0) === (tab==='login')));
+  document.getElementById('auth-login').style.display = tab === 'login' ? 'block' : 'none';
+  document.getElementById('auth-register').style.display = tab === 'register' ? 'block' : 'none';
+}
+
+async function doLogin() {
+  const email = document.getElementById('login-email').value.trim();
+  const pass = document.getElementById('login-pass').value;
+  const errEl = document.getElementById('login-err');
+  const btn = document.getElementById('login-btn');
+  errEl.style.display = 'none';
+  btn.disabled = true; btn.textContent = 'Entrando...';
+  const { data, error } = await sb.auth.signInWithPassword({ email, password: pass });
+  btn.disabled = false; btn.textContent = 'Entrar';
+  if (error) { errEl.textContent = 'Email o contraseña incorrectos.'; errEl.style.display = 'block'; return; }
+  currentUser = data.user;
+  await enterApp();
+}
+
+async function doRegister() {
+  const name = document.getElementById('reg-name').value.trim();
+  const email = document.getElementById('reg-email').value.trim();
+  const pass = document.getElementById('reg-pass').value;
+  const errEl = document.getElementById('reg-err');
+  const btn = document.getElementById('reg-btn');
+  errEl.style.display = 'none';
+  if (!name || !email || pass.length < 6) {
+    errEl.textContent = 'Completá todos los campos (contraseña mín. 6 caracteres).';
+    errEl.style.display = 'block'; return;
+  }
+  btn.disabled = true; btn.textContent = 'Creando cuenta...';
+  const { data, error } = await sb.auth.signUp({ email, password: pass, options: { data: { name } } });
+  btn.disabled = false; btn.textContent = 'Crear cuenta';
+  if (error) { errEl.textContent = error.message; errEl.style.display = 'block'; return; }
+  currentUser = data.user;
+  await sb.from('profiles').upsert({ id: currentUser.id, name, email });
+  await enterApp();
+}
+
+async function doLogout() {
+  await sb.auth.signOut();
+  currentUser = null; myStickers = {}; myFriends = [];
+  document.getElementById('app').classList.remove('visible');
+  document.getElementById('auth-screen').style.display = 'flex';
+}
+
+// --- APP INIT ---
+async function enterApp() {
+  document.getElementById('auth-screen').style.display = 'none';
+  document.getElementById('app').classList.add('visible');
+  const name = currentUser.user_metadata?.name || currentUser.email;
+  document.getElementById('header-name').textContent = name;
+
+  buildTeamSelect();
+  await loadMyStickers();
+  await loadFriends();
+  renderGrid();
+  renderFriends();
+  renderIntercambioBtns();
+}
+
+function buildTeamSelect() {
+  const sel = document.getElementById('f-team');
+  for (const t of TEAMS) {
+    const o = document.createElement('option');
+    o.value = t.id; o.textContent = t.flag + ' ' + t.name;
+    sel.appendChild(o);
+  }
+}
+
+async function loadMyStickers() {
+  const { data } = await sb.from('stickers').select('*').eq('user_id', currentUser.id);
+  myStickers = {};
+  if (data) for (const r of data) myStickers[r.sticker_num] = { state: r.state, repeated: r.repeated };
+}
+
+async function loadFriends() {
+  const { data } = await sb.from('friendships')
+    .select('friend_id, profiles!friendships_friend_id_fkey(id, name, email)')
+    .eq('user_id', currentUser.id);
+  myFriends = data || [];
+}
+
+// --- STICKER GRID ---
+function getState(num) { return myStickers[num] || { state: 'missing', repeated: 0 }; }
+
+function renderGrid() {
+  const q = document.getElementById('f-search').value.toLowerCase();
+  const teamF = document.getElementById('f-team').value;
+  const statusF = document.getElementById('f-status').value;
+
+  let have = 0, totalRep = 0, repCount = 0;
+  for (const s of ALL) {
+    const sd = getState(s.num);
+    if (sd.state === 'have') { have++; totalRep += sd.repeated; }
+    if (sd.repeated > 0) repCount++;
+  }
+  const missing = 670 - have;
+  const pct = Math.round(have / 670 * 100);
+  document.getElementById('s-have').textContent = have;
+  document.getElementById('s-missing').textContent = missing;
+  document.getElementById('s-rep').textContent = totalRep;
+  document.getElementById('s-pct').textContent = pct + '%';
+  document.getElementById('prog').style.width = pct + '%';
+
+  const filtered = ALL.filter(s => {
+    if (teamF && s.team !== teamF) return false;
+    if (q && !String(s.num).includes(q) && !s.teamName.toLowerCase().includes(q)) return false;
+    const sd = getState(s.num);
+    if (statusF === 'missing' && sd.state !== 'missing') return false;
+    if (statusF === 'have' && sd.state !== 'have') return false;
+    if (statusF === 'repeated' && sd.repeated === 0) return false;
+    return true;
+  });
+
+  const byTeam = {};
+  for (const s of filtered) {
+    if (!byTeam[s.team]) byTeam[s.team] = { ...TEAMS.find(t => t.id === s.team), items: [] };
+    byTeam[s.team].items.push(s);
+  }
+
+  let html = '';
+  if (!filtered.length) { html = '<div class="empty">No hay figuritas con ese filtro.</div>'; }
+  else {
+    for (const tid of Object.keys(byTeam)) {
+      const g = byTeam[tid];
+      html += `<div class="group-label">${g.flag} ${g.name}</div><div class="sticker-grid">`;
+      for (const s of g.items) {
+        const sd = getState(s.num);
+        const cls = sd.state === 'have' ? 'have' : sd.repeated > 0 ? 'repeated' : '';
+        const rep = sd.repeated > 0 ? `<span class="rep-badge">+${sd.repeated}</span>` : '';
+        html += `<div class="sticker-cell ${cls}" onclick="openModal(${s.num})">${rep}<span class="sticker-num">${s.num}</span></div>`;
+      }
+      html += '</div>';
+    }
+  }
+  document.getElementById('album-grid').innerHTML = html;
+}
+
+// --- MODAL ---
+function openModal(num) {
+  modalNum = num;
+  const s = ALL.find(x => x.num === num);
+  document.getElementById('m-title').textContent = `Figurita #${num}`;
+  document.getElementById('m-sub').textContent = s ? `${s.flag} ${s.teamName}` : '';
+  updateRepLabel();
+  document.getElementById('modal').classList.add('open');
+}
+
+function closeModal() { document.getElementById('modal').classList.remove('open'); }
+document.getElementById('modal').addEventListener('click', e => { if (e.target === document.getElementById('modal')) closeModal(); });
+
+function updateRepLabel() {
+  const sd = getState(modalNum);
+  document.getElementById('m-rep').textContent = sd.repeated + (sd.repeated === 1 ? ' repetida' : ' repetidas');
+}
+
+async function setState(state) {
+  const sd = getState(modalNum);
+  const rep = state === 'missing' ? 0 : sd.repeated;
+  myStickers[modalNum] = { state, repeated: rep };
+  renderGrid();
+  updateRepLabel();
+  await sb.from('stickers').upsert({ user_id: currentUser.id, sticker_num: modalNum, state, repeated: rep }, { onConflict: 'user_id,sticker_num' });
+}
+
+async function changeRep(delta) {
+  const sd = getState(modalNum);
+  const newRep = Math.max(0, sd.repeated + delta);
+  const newState = newRep > 0 ? 'have' : sd.state;
+  myStickers[modalNum] = { state: newState, repeated: newRep };
+  renderGrid();
+  updateRepLabel();
+  await sb.from('stickers').upsert({ user_id: currentUser.id, sticker_num: modalNum, state: newState, repeated: newRep }, { onConflict: 'user_id,sticker_num' });
+}
+
+// --- FRIENDS ---
+function goTab(name) {
+  document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+  document.getElementById('panel-' + name).classList.add('active');
+  document.getElementById('nav-' + name).classList.add('active');
+  if (name === 'intercambio') renderIntercambioBtns();
+}
+
+async function searchUsers() {
+  const q = document.getElementById('friend-q').value.trim().toLowerCase();
+  const container = document.getElementById('search-results');
+  if (!q) { container.innerHTML = ''; return; }
+  container.innerHTML = '<div class="loading"><span class="spinner"></span>Buscando...</div>';
+  const { data } = await sb.from('profiles').select('*').or(`name.ilike.%${q}%,email.ilike.%${q}%`).neq('id', currentUser.id).limit(8);
+  if (!data || !data.length) { container.innerHTML = '<div class="empty">No se encontraron usuarios.</div>'; return; }
+  const friendIds = myFriends.map(f => f.friend_id);
+  let html = '<div class="card">';
+  for (const u of data) {
+    const isFriend = friendIds.includes(u.id);
+    const initials = (u.name || u.email).split(' ').map(w => w[0]).join('').slice(0,2).toUpperCase();
+    html += `<div class="friend-row">
+      <div class="avatar">${initials}</div>
+      <div class="friend-info">
+        <div class="friend-name">${u.name || 'Sin nombre'}</div>
+        <div class="friend-meta">${u.email || ''}</div>
+      </div>
+      ${isFriend
+        ? '<span style="font-size:12px;color:var(--green);font-weight:500;">✓ Amigo</span>'
+        : `<button class="btn-small add" onclick="addFriend('${u.id}','${(u.name||'').replace(/'/g,'')}'  ,'${(u.email||'').replace(/'/g,'')}')">+ Agregar</button>`}
+    </div>`;
+  }
+  html += '</div>';
+  container.innerHTML = html;
+}
+
+async function addFriend(friendId, name, email) {
+  await sb.from('friendships').upsert({ user_id: currentUser.id, friend_id: friendId }, { onConflict: 'user_id,friend_id' });
+  await sb.from('profiles').upsert({ id: friendId, name, email });
+  await loadFriends();
+  renderFriends();
+  renderIntercambioBtns();
+  searchUsers();
+}
+
+async function removeFriend(friendId) {
+  await sb.from('friendships').delete().eq('user_id', currentUser.id).eq('friend_id', friendId);
+  await loadFriends();
+  renderFriends();
+  renderIntercambioBtns();
+}
+
+function renderFriends() {
+  const container = document.getElementById('friends-list');
+  if (!myFriends.length) { container.innerHTML = '<div class="empty">Todavía no tenés amigos agregados.</div>'; return; }
+  let html = '';
+  for (const f of myFriends) {
+    const p = f.profiles;
+    const name = p?.name || 'Usuario';
+    const initials = name.split(' ').map(w => w[0]).join('').slice(0,2).toUpperCase();
+    html += `<div class="friend-row">
+      <div class="avatar">${initials}</div>
+      <div class="friend-info">
+        <div class="friend-name">${name}</div>
+        <div class="friend-meta">${p?.email || ''}</div>
+      </div>
+      <button class="btn-small remove" onclick="removeFriend('${f.friend_id}')">Quitar</button>
+    </div>`;
+  }
+  container.innerHTML = html;
+}
+
+// --- INTERCAMBIO ---
+function renderIntercambioBtns() {
+  const container = document.getElementById('intercambio-friend-btns');
+  if (!myFriends.length) {
+    container.innerHTML = '<div class="empty">Agregá amigos para poder comparar colecciones.</div>';
+    document.getElementById('intercambio-result').innerHTML = '';
+    return;
+  }
+  let html = '';
+  for (const f of myFriends) {
+    const name = f.profiles?.name || 'Usuario';
+    html += `<button class="friend-pick-btn" onclick="showIntercambio('${f.friend_id}', '${name.replace(/'/g,'')}')">${name}</button>`;
+  }
+  container.innerHTML = html;
+}
+
+async function showIntercambio(friendId, friendName) {
+  document.querySelectorAll('.friend-pick-btn').forEach(b => b.classList.remove('active'));
+  event.target.classList.add('active');
+  document.getElementById('intercambio-result').innerHTML = '<div class="loading"><span class="spinner"></span>Comparando colecciones...</div>';
+
+  const { data } = await sb.from('stickers').select('*').eq('user_id', friendId);
+  const friendStickers = {};
+  if (data) for (const r of data) friendStickers[r.sticker_num] = { state: r.state, repeated: r.repeated };
+
+  const iCanGive = ALL.filter(s => {
+    const mine = getState(s.num);
+    const theirs = friendStickers[s.num] || { state: 'missing', repeated: 0 };
+    return mine.repeated > 0 && theirs.state !== 'have';
+  });
+
+  const theyCanGive = ALL.filter(s => {
+    const mine = getState(s.num);
+    const theirs = friendStickers[s.num] || { state: 'missing', repeated: 0 };
+    return theirs.repeated > 0 && mine.state !== 'have';
+  });
+
+  let html = `<div class="card">
+    <div style="font-size:15px;font-weight:700;margin-bottom:14px;">Intercambio con ${friendName}</div>
+    <div class="section-title">📤 Yo puedo darle (${iCanGive.length})</div>`;
+
+  if (!iCanGive.length) {
+    html += '<p style="font-size:13px;color:var(--text-muted);margin-bottom:14px;">No tenés repetidas que le falten.</p>';
+  } else {
+    html += '<div class="chips-wrap">';
+    for (const s of iCanGive.slice(0, 60)) html += `<span class="chip chip-amber">${s.flag}${s.num}</span>`;
+    if (iCanGive.length > 60) html += `<span class="chip" style="background:#eee;color:#666;">+${iCanGive.length-60}</span>`;
+    html += '</div>';
+  }
+
+  html += `<div class="section-title">📥 Él/ella me puede dar (${theyCanGive.length})</div>`;
+  if (!theyCanGive.length) {
+    html += '<p style="font-size:13px;color:var(--text-muted);">No tiene repetidas que te falten.</p>';
+  } else {
+    html += '<div class="chips-wrap">';
+    for (const s of theyCanGive.slice(0, 60)) html += `<span class="chip chip-green">${s.flag}${s.num}</span>`;
+    if (theyCanGive.length > 60) html += `<span class="chip" style="background:#eee;color:#666;">+${theyCanGive.length-60}</span>`;
+    html += '</div>';
+  }
+
+  html += '</div>';
+  document.getElementById('intercambio-result').innerHTML = html;
+}
+
+// --- INIT ---
+(async () => {
+  const { data } = await sb.auth.getSession();
+  if (data?.session?.user) {
+    currentUser = data.session.user;
+    await enterApp();
+  }
+})();
+</script>
+</body>
+</html>
