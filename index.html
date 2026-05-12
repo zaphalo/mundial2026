@@ -9,17 +9,10 @@
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <style>
   :root {
-    --green: #2d6a4f;
-    --green-light: #d8f3dc;
-    --green-mid: #52b788;
-    --amber: #e76f51;
-    --amber-light: #fde8df;
-    --border: #e9ecef;
-    --text: #1a1a2e;
-    --text-muted: #6c757d;
-    --bg: #f0f4f0;
-    --radius: 12px;
-    --radius-sm: 8px;
+    --green: #2d6a4f; --green-light: #d8f3dc; --green-mid: #52b788;
+    --amber: #e76f51; --amber-light: #fde8df;
+    --border: #e9ecef; --text: #1a1a2e; --text-muted: #6c757d;
+    --bg: #f0f4f0; --radius: 12px; --radius-sm: 8px;
   }
   * { box-sizing: border-box; margin: 0; padding: 0; }
   body { font-family: 'Outfit', sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; }
@@ -29,7 +22,7 @@
   .auth-card { background: white; border-radius: 20px; padding: 2.5rem; width: 100%; max-width: 400px; box-shadow: 0 20px 60px rgba(0,0,0,0.2); }
   .auth-logo { text-align: center; margin-bottom: 1.75rem; }
   .auth-logo .ball { font-size: 48px; display: block; margin-bottom: 8px; }
-  .auth-logo h1 { font-size: 22px; font-weight: 700; color: var(--text); }
+  .auth-logo h1 { font-size: 22px; font-weight: 700; }
   .auth-logo p { font-size: 13px; color: var(--text-muted); margin-top: 4px; }
   .tabs { display: flex; background: #f8f9fa; border-radius: var(--radius-sm); padding: 3px; margin-bottom: 1.5rem; }
   .tab-btn { flex: 1; padding: 8px; border: none; background: transparent; border-radius: 6px; font-size: 13px; font-weight: 500; color: var(--text-muted); cursor: pointer; }
@@ -82,47 +75,25 @@
   .sticker-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(68px, 1fr)); gap: 5px; }
 
   .sticker-cell {
-    border: 1.5px solid var(--border);
-    border-radius: 8px;
-    padding: 8px 4px 6px;
-    text-align: center;
-    cursor: pointer;
-    background: white;
-    position: relative;
-    user-select: none;
-    -webkit-user-select: none;
-    touch-action: manipulation;
-    transition: transform 0.08s;
-    overflow: hidden;
+    border: 1.5px solid var(--border); border-radius: 8px; padding: 8px 4px 6px;
+    text-align: center; cursor: pointer; background: white; position: relative;
+    user-select: none; -webkit-user-select: none; touch-action: manipulation;
+    transition: transform 0.08s; overflow: hidden;
   }
   .sticker-cell:active { transform: scale(0.92); }
   .sticker-cell.have { background: var(--green-light); border-color: var(--green-mid); }
   .sticker-cell.repeated { background: var(--amber-light); border-color: var(--amber); }
-
-  /* hold fill animation */
   .sticker-cell::before {
-    content: '';
-    position: absolute;
-    inset: 0;
-    background: rgba(231,111,81,0.18);
-    transform: scaleY(0);
-    transform-origin: bottom;
-    pointer-events: none;
+    content: ''; position: absolute; inset: 0;
+    background: rgba(231,111,81,0.18); transform: scaleY(0);
+    transform-origin: bottom; pointer-events: none;
   }
-  .sticker-cell.holding::before {
-    transform: scaleY(1);
-    transition: transform 0.6s linear;
-  }
-
+  .sticker-cell.holding::before { transform: scaleY(1); transition: transform 0.6s linear; }
   @keyframes reset-shake {
-    0%   { transform: scale(1); }
-    25%  { transform: scale(0.85) rotate(-5deg); }
-    55%  { transform: scale(0.85) rotate(5deg); }
-    80%  { transform: scale(0.95); }
-    100% { transform: scale(1); }
+    0% { transform: scale(1); } 25% { transform: scale(0.85) rotate(-5deg); }
+    55% { transform: scale(0.85) rotate(5deg); } 80% { transform: scale(0.95); } 100% { transform: scale(1); }
   }
   .sticker-cell.resetting { animation: reset-shake 0.38s ease forwards; }
-
   .sticker-code { font-size: 11px; font-weight: 700; display: block; font-family: 'DM Mono', monospace; color: var(--text); line-height: 1.3; }
   .rep-badge { position: absolute; top: 2px; right: 3px; font-size: 8px; font-weight: 700; background: var(--amber); color: white; border-radius: 4px; padding: 1px 3px; line-height: 1.4; }
 
@@ -148,20 +119,12 @@
   .friend-btn-row { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 1rem; }
   .friend-pick-btn { padding: 8px 14px; border-radius: 8px; border: 1.5px solid var(--border); background: white; font-size: 13px; font-weight: 500; cursor: pointer; font-family: 'Outfit', sans-serif; }
   .friend-pick-btn:hover, .friend-pick-btn.active { background: var(--green-light); border-color: var(--green-mid); color: var(--green); }
-
   .empty { text-align: center; padding: 2.5rem 1rem; color: var(--text-muted); font-size: 13px; }
   .loading { text-align: center; padding: 2rem; color: var(--text-muted); font-size: 13px; }
   .spinner { display: inline-block; width: 18px; height: 18px; border: 2px solid var(--border); border-top-color: var(--green); border-radius: 50%; animation: spin 0.7s linear infinite; vertical-align: middle; margin-right: 6px; }
   @keyframes spin { to { transform: rotate(360deg); } }
-
-  .toast {
-    position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%) translateY(16px);
-    background: #1a1a2e; color: white; font-size: 13px; font-weight: 500;
-    padding: 9px 20px; border-radius: 999px; z-index: 999;
-    opacity: 0; transition: opacity 0.18s, transform 0.18s; pointer-events: none; white-space: nowrap;
-  }
+  .toast { position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%) translateY(16px); background: #1a1a2e; color: white; font-size: 13px; font-weight: 500; padding: 9px 20px; border-radius: 999px; z-index: 999; opacity: 0; transition: opacity 0.18s, transform 0.18s; pointer-events: none; white-space: nowrap; }
   .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
-
   @media (max-width: 500px) {
     .stats-row { grid-template-columns: repeat(2, 1fr); }
     .sticker-grid { grid-template-columns: repeat(auto-fill, minmax(58px, 1fr)); }
@@ -183,30 +146,15 @@
       <button class="tab-btn" onclick="switchAuthTab('register')">Registrarse</button>
     </div>
     <div id="auth-login">
-      <div class="form-group">
-        <label class="form-label">Email</label>
-        <input class="form-input" type="email" id="login-email" placeholder="tu@email.com" />
-      </div>
-      <div class="form-group">
-        <label class="form-label">Contraseña</label>
-        <input class="form-input" type="password" id="login-pass" placeholder="Tu contraseña" onkeydown="if(event.key==='Enter') doLogin()" />
-      </div>
+      <div class="form-group"><label class="form-label">Email</label><input class="form-input" type="email" id="login-email" placeholder="tu@email.com" /></div>
+      <div class="form-group"><label class="form-label">Contraseña</label><input class="form-input" type="password" id="login-pass" placeholder="Tu contraseña" onkeydown="if(event.key==='Enter') doLogin()" /></div>
       <div class="error-msg" id="login-err"></div>
       <button class="btn-primary" id="login-btn" onclick="doLogin()">Entrar</button>
     </div>
     <div id="auth-register" style="display:none;">
-      <div class="form-group">
-        <label class="form-label">Nombre</label>
-        <input class="form-input" type="text" id="reg-name" placeholder="Tu nombre" />
-      </div>
-      <div class="form-group">
-        <label class="form-label">Email</label>
-        <input class="form-input" type="email" id="reg-email" placeholder="tu@email.com" />
-      </div>
-      <div class="form-group">
-        <label class="form-label">Contraseña</label>
-        <input class="form-input" type="password" id="reg-pass" placeholder="Mínimo 6 caracteres" onkeydown="if(event.key==='Enter') doRegister()" />
-      </div>
+      <div class="form-group"><label class="form-label">Nombre</label><input class="form-input" type="text" id="reg-name" placeholder="Tu nombre" /></div>
+      <div class="form-group"><label class="form-label">Email</label><input class="form-input" type="email" id="reg-email" placeholder="tu@email.com" /></div>
+      <div class="form-group"><label class="form-label">Contraseña</label><input class="form-input" type="password" id="reg-pass" placeholder="Mínimo 6 caracteres" onkeydown="if(event.key==='Enter') doRegister()" /></div>
       <div class="error-msg" id="reg-err"></div>
       <button class="btn-primary" id="reg-btn" onclick="doRegister()">Crear cuenta</button>
     </div>
@@ -216,10 +164,7 @@
 <div class="app" id="app">
   <div class="app-header">
     <div class="header-brand">⚽ Mundial 2026</div>
-    <div class="header-user">
-      <span id="header-name"></span>
-      <button class="logout-btn" onclick="doLogout()">Salir</button>
-    </div>
+    <div class="header-user"><span id="header-name"></span><button class="logout-btn" onclick="doLogout()">Salir</button></div>
   </div>
   <div class="nav-bar">
     <button class="nav-item active" onclick="goTab('album')" id="nav-album">📋 Álbum</button>
@@ -236,14 +181,12 @@
         <div class="stat-box"><div class="stat-num" id="s-pct">0%</div><div class="stat-label">Completo</div></div>
       </div>
       <div class="progress-wrap"><div class="progress-bar" id="prog" style="width:0%"></div></div>
-
       <div class="hint-bar">
         <div class="hint-item"><div class="hint-dot miss"></div>Sin marcar</div>
         <div class="hint-item"><div class="hint-dot have"></div>1 toque = la tengo</div>
         <div class="hint-item"><div class="hint-dot rep"></div>Más toques = repetidas</div>
         <div class="hint-item">⏱ Mantener = borrar</div>
       </div>
-
       <div class="filters">
         <input type="text" id="f-search" placeholder="Buscar código (ej: ARG3, MEX12...)" oninput="renderGrid()" />
         <select id="f-team" onchange="renderGrid()"><option value="">Todos los equipos</option></select>
@@ -313,19 +256,19 @@ const TEAMS = [
 
 const ALL = [];
 for (const t of TEAMS) for (let i = 1; i <= 20; i++) ALL.push({ code: t.id+i, team: t.id, teamName: t.name, flag: t.flag });
-const TOTAL = ALL.length;
+const TOTAL = ALL.length; // 980
 
 let currentUser = null;
 let myStickers = {};
 let myFriends = [];
 
-// --- SAVE QUEUE (debounced) ---
+// --- SAVE QUEUE ---
 const saveQueue = {};
 function scheduleSave(code) {
   clearTimeout(saveQueue[code]);
-  saveQueue[code] = setTimeout(() => {
+  saveQueue[code] = setTimeout(async () => {
     const sd = myStickers[code] || { state: 'missing', repeated: 0 };
-    sb.from('stickers').upsert(
+    await sb.from('stickers').upsert(
       { user_id: currentUser.id, sticker_num: code, state: sd.state, repeated: sd.repeated },
       { onConflict: 'user_id,sticker_num' }
     );
@@ -392,12 +335,13 @@ function onPointerLeave(code, el) {
 function updateCell(code, el) {
   const sd = myStickers[code] || { state: 'missing', repeated: 0 };
   el.className = 'sticker-cell' + (sd.repeated > 0 ? ' repeated' : sd.state === 'have' ? ' have' : '');
-  el.querySelector('.rep-badge') && el.querySelector('.rep-badge').remove();
+  const b = el.querySelector('.rep-badge');
+  if (b) b.remove();
   if (sd.repeated > 0) {
-    const b = document.createElement('span');
-    b.className = 'rep-badge';
-    b.textContent = '+' + sd.repeated;
-    el.appendChild(b);
+    const badge = document.createElement('span');
+    badge.className = 'rep-badge';
+    badge.textContent = '+' + sd.repeated;
+    el.appendChild(badge);
   }
 }
 
@@ -431,7 +375,8 @@ async function doLogin() {
   const { data, error } = await sb.auth.signInWithPassword({ email, password: pass });
   btn.disabled = false; btn.textContent = 'Entrar';
   if (error) { errEl.textContent = 'Email o contraseña incorrectos.'; errEl.style.display = 'block'; return; }
-  currentUser = data.user; await enterApp();
+  currentUser = data.user;
+  await enterApp();
 }
 
 async function doRegister() {
@@ -447,7 +392,7 @@ async function doRegister() {
   btn.disabled = false; btn.textContent = 'Crear cuenta';
   if (error) { errEl.textContent = error.message; errEl.style.display = 'block'; return; }
   currentUser = data.user;
-  await sb.from('profiles').upsert({ id: currentUser.id, name, email });
+  await sb.from('profiles').upsert({ id: currentUser.id, name, email }, { onConflict: 'id' });
   await enterApp();
 }
 
@@ -462,6 +407,11 @@ async function enterApp() {
   document.getElementById('auth-screen').style.display = 'none';
   document.getElementById('app').classList.add('visible');
   document.getElementById('header-name').textContent = currentUser.user_metadata?.name || currentUser.email;
+  // make sure profile exists
+  await sb.from('profiles').upsert(
+    { id: currentUser.id, name: currentUser.user_metadata?.name || '', email: currentUser.email },
+    { onConflict: 'id' }
+  );
   buildTeamSelect();
   await loadMyStickers();
   await loadFriends();
@@ -472,6 +422,7 @@ async function enterApp() {
 
 function buildTeamSelect() {
   const sel = document.getElementById('f-team');
+  sel.innerHTML = '<option value="">Todos los equipos</option>';
   for (const t of TEAMS) {
     const o = document.createElement('option');
     o.value = t.id; o.textContent = t.flag + ' ' + t.name;
@@ -486,10 +437,13 @@ async function loadMyStickers() {
 }
 
 async function loadFriends() {
-  const { data } = await sb.from('friendships')
-    .select('friend_id, profiles!friendships_friend_id_fkey(id, name, email)')
-    .eq('user_id', currentUser.id);
-  myFriends = data || [];
+  const { data: fships } = await sb.from('friendships').select('friend_id').eq('user_id', currentUser.id);
+  if (!fships || !fships.length) { myFriends = []; return; }
+  const friendIds = fships.map(f => f.friend_id);
+  const { data: profiles } = await sb.from('profiles').select('id, name, email').in('id', friendIds);
+  const profileMap = {};
+  if (profiles) for (const p of profiles) profileMap[p.id] = p;
+  myFriends = fships.map(f => ({ friend_id: f.friend_id, profiles: profileMap[f.friend_id] || null }));
 }
 
 function getState(code) { return myStickers[code] || { state: 'missing', repeated: 0 }; }
@@ -498,7 +452,6 @@ function renderGrid() {
   const q = document.getElementById('f-search').value.toLowerCase().replace(/\s/g,'');
   const teamF = document.getElementById('f-team').value;
   const statusF = document.getElementById('f-status').value;
-
   updateStats();
 
   const filtered = ALL.filter(s => {
@@ -519,7 +472,6 @@ function renderGrid() {
 
   const container = document.getElementById('album-grid');
   container.innerHTML = '';
-
   if (!filtered.length) { container.innerHTML = '<div class="empty">No hay figuritas con ese filtro.</div>'; return; }
 
   for (const tid of Object.keys(byTeam)) {
@@ -536,28 +488,21 @@ function renderGrid() {
       const sd = getState(s.code);
       const cell = document.createElement('div');
       cell.className = 'sticker-cell' + (sd.repeated > 0 ? ' repeated' : sd.state === 'have' ? ' have' : '');
-
       const codeSpan = document.createElement('span');
       codeSpan.className = 'sticker-code';
       codeSpan.textContent = s.code;
       cell.appendChild(codeSpan);
-
       if (sd.repeated > 0) {
         const b = document.createElement('span');
-        b.className = 'rep-badge';
-        b.textContent = '+' + sd.repeated;
+        b.className = 'rep-badge'; b.textContent = '+' + sd.repeated;
         cell.appendChild(b);
       }
-
-      // mouse events
       cell.addEventListener('mousedown', () => onPointerDown(s.code, cell));
       cell.addEventListener('mouseup', () => onPointerUp(s.code, cell));
       cell.addEventListener('mouseleave', () => onPointerLeave(s.code, cell));
-      // touch events
       cell.addEventListener('touchstart', e => { e.preventDefault(); onPointerDown(s.code, cell); }, { passive: false });
       cell.addEventListener('touchend', e => { e.preventDefault(); onPointerUp(s.code, cell); }, { passive: false });
       cell.addEventListener('touchcancel', () => onPointerLeave(s.code, cell));
-
       grid.appendChild(cell);
     }
     container.appendChild(grid);
@@ -595,9 +540,13 @@ async function searchUsers() {
   container.innerHTML = html;
 }
 
-async function addFriend(friendId, name, email) {
-  await sb.from('friendships').upsert({ user_id: currentUser.id, friend_id: friendId }, { onConflict: 'user_id,friend_id' });
-  await loadFriends(); renderFriends(); renderIntercambioBtns(); searchUsers();
+async function addFriend(friendId) {
+  const { error } = await sb.from('friendships').upsert({ user_id: currentUser.id, friend_id: friendId }, { onConflict: 'user_id,friend_id' });
+  if (error) { showToast('Error al agregar amigo'); return; }
+  await loadFriends();
+  renderFriends(); renderIntercambioBtns();
+  searchUsers();
+  showToast('✅ Amigo agregado');
 }
 
 async function removeFriend(friendId) {
