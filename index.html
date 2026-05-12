@@ -437,10 +437,14 @@ async function loadMyStickers() {
 }
 
 async function loadFriends() {
-  const { data: fships } = await sb.from('friendships').select('friend_id').eq('user_id', currentUser.id);
+  const { data: fships } = await sb.from('friendships')
+    .select('friend_id')
+    .eq('user_id', currentUser.id);
   if (!fships || !fships.length) { myFriends = []; return; }
   const friendIds = fships.map(f => f.friend_id);
-  const { data: profiles } = await sb.from('profiles').select('id, name, email').in('id', friendIds);
+  const { data: profiles } = await sb.from('profiles')
+    .select('id, name, email')
+    .in('id', friendIds);
   const profileMap = {};
   if (profiles) for (const p of profiles) profileMap[p.id] = p;
   myFriends = fships.map(f => ({ friend_id: f.friend_id, profiles: profileMap[f.friend_id] || null }));
