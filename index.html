@@ -91,6 +91,10 @@
   .sticker-cell.repeated { background: var(--amber-light); border-color: var(--amber); }
   .sticker-code { font-size: 11px; font-weight: 700; display: block; font-family: 'DM Mono', monospace; color: var(--text); line-height: 1.2; }
   .rep-badge { position: absolute; top: 2px; right: 3px; font-size: 8px; font-weight: 700; background: var(--amber); color: white; border-radius: 4px; padding: 1px 3px; line-height: 1.4; }
+  .sticker-cell.holding {
+  transform: scale(0.96);
+  opacity: 0.7;
+}
 
   .modal-bg { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.4); z-index: 200; align-items: center; justify-content: center; padding: 1rem; }
   .modal-bg.open { display: flex; }
@@ -245,22 +249,7 @@
   </div>
 </div>
 
-<div class="modal-bg" id="modal">
-  <div class="modal-box">
-    <div class="modal-title" id="m-title"></div>
-    <div class="modal-sub" id="m-sub"></div>
-    <div class="modal-actions">
-      <button class="btn-action green" onclick="setState('have')">✅ La tengo</button>
-      <div class="rep-row">
-        <button class="rep-btn" onclick="changeRep(-1)">−</button>
-        <span id="m-rep">0 repetidas</span>
-        <button class="rep-btn" onclick="changeRep(1)">+</button>
-      </div>
-      <button class="btn-action amber" onclick="setState('missing')">❌ Me falta</button>
-    </div>
-    <button class="modal-close" onclick="closeModal()">Cerrar</button>
-  </div>
-</div>
+
 
 <script>
 const SUPABASE_URL = 'https://wldqgmuypvhhtvbyllwm.supabase.co';
@@ -331,7 +320,8 @@ const TOTAL = ALL.length; // 960
 let currentUser = null;
 let myStickers = {};
 let myFriends = [];
-let modalCode = null;
+let holdTimer = null;
+let holdTriggered = false;
 
 function switchAuthTab(tab) {
   document.querySelectorAll('.tab-btn').forEach((b,i) => b.classList.toggle('active', (i===0)===(tab==='login')));
@@ -461,46 +451,111 @@ function renderGrid() {
         const sd = getState(s.code);
         const cls = sd.state === 'have' ? 'have' : sd.repeated > 0 ? 'repeated' : '';
         const rep = sd.repeated > 0 ? `<span class="rep-badge">+${sd.repeated}</span>` : '';
-        html += `<div class="sticker-cell ${cls}" onclick="openModal('${s.code}')">${rep}<span class="sticker-code">${s.code}</span></div>`;
+        html += `
+<div
+  class="sticker-cell ${cls}"
+  data-code="${s.code}"
+  onmousedown="startHold(event, '${s.code}')"
+  ontouchstart="startHold(event, '${s.code}')"
+  onmouseup="endHold(event, '${s.code}')"
+  onmouseleave="cancelHold()"
+  ontouchend="endHold(event, '${s.code}')"
+>
+  ${rep}
+  <span class="sticker-code">${s.code}</span>
+</div>`;
       }
       html += '</div>';
     }
   }
   document.getElementById('album-grid').innerHTML = html;
 }
+function startHold(event, code) {
+  holdTriggered = false;
 
-function openModal(code) {
-  modalCode = code;
-  const s = ALL.find(x => x.code === code);
-  document.getElementById('m-title').textContent = s ? `${s.flag} ${s.code}` : code;
-  document.getElementById('m-sub').textContent = s ? s.teamName : '';
-  updateRepLabel();
-  document.getElementById('modal').classList.add('open');
+  const cell = event.currentTarget;
+  cell.classList.add('holding');
+
+  holdTimer = setTimeout(async () => {
+    holdTriggered = true;
+
+    const current = getState(code);
+
+    if (current.repeated > 0) {
+      const newRep = current.repeated - 1;
+      const newState = newRep > 0 ? 'have' : 'have';
+
+      myStickers[code] = {
+        state: newState,
+        repeated: newRep
+      };
+    } else {
+      myStickers[code] = {
+        state: 'missing',
+        repeated: 0
+      };
+    }
+
+    renderGrid();
+
+    const updated = getState(code);
+
+    await sb.from('stickers').upsert({
+      user_id: currentUser.id,
+      sticker_num: code,
+      state: updated.state,
+      repeated: updated.repeated
+    }, {
+      onConflict: 'user_id,sticker_num'
+    });
+
+  }, 500);
 }
 
-function closeModal() { document.getElementById('modal').classList.remove('open'); }
-document.getElementById('modal').addEventListener('click', e => { if (e.target === document.getElementById('modal')) closeModal(); });
-
-function updateRepLabel() {
-  const sd = getState(modalCode);
-  document.getElementById('m-rep').textContent = sd.repeated + (sd.repeated === 1 ? ' repetida' : ' repetidas');
+function cancelHold() {
+  clearTimeout(holdTimer);
+  document.querySelectorAll('.sticker-cell').forEach(c => c.classList.remove('holding'));
 }
 
-async function setState(state) {
-  const sd = getState(modalCode);
-  const rep = state === 'missing' ? 0 : sd.repeated;
-  myStickers[modalCode] = { state, repeated: rep };
-  renderGrid(); updateRepLabel();
-  await sb.from('stickers').upsert({ user_id: currentUser.id, sticker_num: modalCode, state, repeated: rep }, { onConflict: 'user_id,sticker_num' });
-}
+async function endHold(event, code) {
+  clearTimeout(holdTimer);
 
-async function changeRep(delta) {
-  const sd = getState(modalCode);
-  const newRep = Math.max(0, sd.repeated + delta);
-  const newState = newRep > 0 ? 'have' : sd.state;
-  myStickers[modalCode] = { state: newState, repeated: newRep };
-  renderGrid(); updateRepLabel();
-  await sb.from('stickers').upsert({ user_id: currentUser.id, sticker_num: modalCode, state: newState, repeated: newRep }, { onConflict: 'user_id,sticker_num' });
+  const cell = event.currentTarget;
+  cell.classList.remove('holding');
+
+  if (holdTriggered) {
+    holdTriggered = false;
+    return;
+  }
+
+  const current = getState(code);
+
+  let newState = 'have';
+  let newRep = 0;
+
+  if (current.state === 'missing') {
+    newState = 'have';
+    newRep = 0;
+  } else {
+    newState = 'have';
+    newRep = current.repeated + 1;
+  }
+
+  myStickers[code] = {
+    state: newState,
+    repeated: newRep
+  };
+
+  renderGrid();
+
+  await sb.from('stickers').upsert({
+    user_id: currentUser.id,
+    sticker_num: code,
+    state: newState,
+    repeated: newRep
+  }, {
+    onConflict: 'user_id,sticker_num'
+  });
 }
 
 function goTab(name) {
