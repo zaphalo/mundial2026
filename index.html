@@ -11,6 +11,8 @@
   :root {
     --green: #2d6a4f; --green-light: #d8f3dc; --green-mid: #52b788;
     --amber: #e76f51; --amber-light: #fde8df;
+    --blue: #1e6091; --blue-light: #e0f0ff;
+    --purple: #6d3fa0; --purple-light: #ede0f7;
     --border: #e9ecef; --text: #1a1a2e; --text-muted: #6c757d;
     --bg: #f0f4f0; --radius: 12px; --radius-sm: 8px;
   }
@@ -44,8 +46,8 @@
   .logout-btn { background: rgba(255,255,255,0.15); border: none; color: white; padding: 6px 12px; border-radius: 6px; font-size: 12px; font-weight: 500; cursor: pointer; font-family: 'Outfit', sans-serif; }
   .logout-btn:hover { background: rgba(255,255,255,0.25); }
 
-  .nav-bar { background: white; border-bottom: 1.5px solid var(--border); display: flex; padding: 0 1rem; position: sticky; top: 56px; z-index: 40; }
-  .nav-item { padding: 14px 16px; font-size: 13px; font-weight: 500; color: var(--text-muted); border-bottom: 2.5px solid transparent; cursor: pointer; background: none; border-top: none; border-left: none; border-right: none; font-family: 'Outfit', sans-serif; }
+  .nav-bar { background: white; border-bottom: 1.5px solid var(--border); display: flex; padding: 0 1rem; position: sticky; top: 56px; z-index: 40; overflow-x: auto; }
+  .nav-item { padding: 14px 14px; font-size: 13px; font-weight: 500; color: var(--text-muted); border-bottom: 2.5px solid transparent; cursor: pointer; background: none; border-top: none; border-left: none; border-right: none; font-family: 'Outfit', sans-serif; white-space: nowrap; }
   .nav-item.active { color: var(--green); border-bottom-color: var(--green); }
 
   .main-content { flex: 1; padding: 1.25rem; max-width: 960px; margin: 0 auto; width: 100%; }
@@ -83,21 +85,50 @@
   .sticker-cell:active { transform: scale(0.92); }
   .sticker-cell.have { background: var(--green-light); border-color: var(--green-mid); }
   .sticker-cell.repeated { background: var(--amber-light); border-color: var(--amber); }
-  .sticker-cell::before {
-    content: ''; position: absolute; inset: 0;
-    background: rgba(231,111,81,0.18); transform: scaleY(0);
-    transform-origin: bottom; pointer-events: none;
-  }
+  .sticker-cell::before { content: ''; position: absolute; inset: 0; background: rgba(231,111,81,0.18); transform: scaleY(0); transform-origin: bottom; pointer-events: none; }
   .sticker-cell.holding::before { transform: scaleY(1); transition: transform 0.6s linear; }
-  @keyframes reset-shake {
-    0% { transform: scale(1); } 25% { transform: scale(0.85) rotate(-5deg); }
-    55% { transform: scale(0.85) rotate(5deg); } 80% { transform: scale(0.95); } 100% { transform: scale(1); }
-  }
+  @keyframes reset-shake { 0% { transform: scale(1); } 25% { transform: scale(0.85) rotate(-5deg); } 55% { transform: scale(0.85) rotate(5deg); } 80% { transform: scale(0.95); } 100% { transform: scale(1); } }
   .sticker-cell.resetting { animation: reset-shake 0.38s ease forwards; }
   .sticker-code { font-size: 11px; font-weight: 700; display: block; font-family: 'DM Mono', monospace; color: var(--text); line-height: 1.3; }
   .rep-badge { position: absolute; top: 2px; right: 3px; font-size: 8px; font-weight: 700; background: var(--amber); color: white; border-radius: 4px; padding: 1px 3px; line-height: 1.4; }
 
+  /* INTERCAMBIO */
   .card { background: white; border: 1.5px solid var(--border); border-radius: var(--radius); padding: 1.25rem; margin-bottom: 1rem; }
+  .section-title { font-size: 13px; font-weight: 600; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 10px; }
+  .chips-wrap { display: flex; flex-wrap: wrap; gap: 5px; margin-bottom: 16px; }
+
+  .chip {
+    font-size: 11px; font-weight: 600; padding: 4px 10px; border-radius: 999px;
+    font-family: 'DM Mono', monospace; cursor: default; border: 1.5px solid transparent;
+    transition: all 0.12s;
+  }
+  .chip-green { background: var(--green-light); color: var(--green); border-color: #b2dfc0; }
+  .chip-amber { background: var(--amber-light); color: #c0392b; border-color: #f5b8a0; }
+  .chip-reserved {
+    background: var(--purple-light); color: var(--purple); border-color: #c9a8e8;
+    cursor: pointer;
+  }
+  .chip-reservable {
+    cursor: pointer;
+  }
+  .chip-reservable:hover { transform: scale(1.06); box-shadow: 0 2px 6px rgba(0,0,0,0.12); }
+  .chip-amber.chip-reservable:hover { background: var(--purple-light); color: var(--purple); border-color: #c9a8e8; }
+
+  .reserved-section {
+    background: var(--purple-light);
+    border: 1.5px solid #c9a8e8;
+    border-radius: var(--radius);
+    padding: 1rem 1.25rem;
+    margin-bottom: 1rem;
+  }
+  .reserved-title {
+    font-size: 13px; font-weight: 700; color: var(--purple);
+    margin-bottom: 8px; display: flex; align-items: center; gap: 6px;
+  }
+  .reserved-by-item { margin-bottom: 10px; }
+  .reserved-by-name { font-size: 12px; font-weight: 600; color: var(--purple); margin-bottom: 4px; }
+
+  /* FRIENDS */
   .search-row { display: flex; gap: 8px; margin-bottom: 1rem; }
   .search-row input { flex: 1; padding: 10px 14px; border: 1.5px solid var(--border); border-radius: var(--radius-sm); font-size: 13px; outline: none; font-family: 'Outfit', sans-serif; }
   .search-row input:focus { border-color: var(--green-mid); }
@@ -111,14 +142,10 @@
   .btn-small { padding: 6px 12px; border-radius: 6px; border: 1.5px solid var(--border); background: white; font-size: 12px; font-weight: 500; cursor: pointer; font-family: 'Outfit', sans-serif; }
   .btn-small.add { border-color: var(--green-mid); color: var(--green); }
   .btn-small.remove { border-color: #e74c3c; color: #e74c3c; }
-  .section-title { font-size: 13px; font-weight: 600; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 10px; }
-  .chips-wrap { display: flex; flex-wrap: wrap; gap: 4px; margin-bottom: 16px; }
-  .chip { font-size: 10px; font-weight: 600; padding: 3px 8px; border-radius: 999px; font-family: 'DM Mono', monospace; }
-  .chip-green { background: var(--green-light); color: var(--green); }
-  .chip-amber { background: var(--amber-light); color: #c0392b; }
   .friend-btn-row { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 1rem; }
   .friend-pick-btn { padding: 8px 14px; border-radius: 8px; border: 1.5px solid var(--border); background: white; font-size: 13px; font-weight: 500; cursor: pointer; font-family: 'Outfit', sans-serif; }
   .friend-pick-btn:hover, .friend-pick-btn.active { background: var(--green-light); border-color: var(--green-mid); color: var(--green); }
+
   .empty { text-align: center; padding: 2.5rem 1rem; color: var(--text-muted); font-size: 13px; }
   .loading { text-align: center; padding: 2rem; color: var(--text-muted); font-size: 13px; }
   .spinner { display: inline-block; width: 18px; height: 18px; border: 2px solid var(--border); border-top-color: var(--green); border-radius: 50%; animation: spin 0.7s linear infinite; vertical-align: middle; margin-right: 6px; }
@@ -136,11 +163,7 @@
 
 <div class="auth-screen" id="auth-screen">
   <div class="auth-card">
-    <div class="auth-logo">
-      <span class="ball">⚽</span>
-      <h1>Álbum Mundial 2026</h1>
-      <p>USA · Canada · México</p>
-    </div>
+    <div class="auth-logo"><span class="ball">⚽</span><h1>Álbum Mundial 2026</h1><p>USA · Canada · México</p></div>
     <div class="tabs">
       <button class="tab-btn active" onclick="switchAuthTab('login')">Iniciar sesión</button>
       <button class="tab-btn" onclick="switchAuthTab('register')">Registrarse</button>
@@ -170,13 +193,15 @@
     <button class="nav-item active" onclick="goTab('album')" id="nav-album">📋 Álbum</button>
     <button class="nav-item" onclick="goTab('amigos')" id="nav-amigos">👥 Amigos</button>
     <button class="nav-item" onclick="goTab('intercambio')" id="nav-intercambio">🔄 Intercambio</button>
+    <button class="nav-item" onclick="goTab('reservas')" id="nav-reservas">🔖 Reservas</button>
   </div>
   <div class="main-content">
 
+    <!-- ALBUM -->
     <div class="tab-panel active" id="panel-album">
       <div class="stats-row">
         <div class="stat-box"><div class="stat-num" id="s-have">0</div><div class="stat-label">Tengo</div></div>
-        <div class="stat-box"><div class="stat-num" id="s-missing">960</div><div class="stat-label">Faltan</div></div>
+        <div class="stat-box"><div class="stat-num" id="s-missing">980</div><div class="stat-label">Faltan</div></div>
         <div class="stat-box"><div class="stat-num" id="s-rep">0</div><div class="stat-label">Repetidas</div></div>
         <div class="stat-box"><div class="stat-num" id="s-pct">0%</div><div class="stat-label">Completo</div></div>
       </div>
@@ -200,6 +225,7 @@
       <div id="album-grid"></div>
     </div>
 
+    <!-- AMIGOS -->
     <div class="tab-panel" id="panel-amigos">
       <div class="search-row">
         <input type="text" id="friend-q" placeholder="Buscar por nombre o email..." />
@@ -210,10 +236,16 @@
       <div class="card" id="friends-list"><div class="empty">Todavía no tenés amigos agregados.</div></div>
     </div>
 
+    <!-- INTERCAMBIO -->
     <div class="tab-panel" id="panel-intercambio">
-      <p style="font-size:13px;color:var(--text-muted);margin-bottom:1rem;">Seleccioná un amigo para ver qué figuritas pueden intercambiar.</p>
+      <p style="font-size:13px;color:var(--text-muted);margin-bottom:1rem;">Seleccioná un amigo para ver qué figuritas pueden intercambiar. Tocá una figurita naranja para reservársela.</p>
       <div class="friend-btn-row" id="intercambio-friend-btns"><div class="empty">Agregá amigos para poder comparar colecciones.</div></div>
       <div id="intercambio-result"></div>
+    </div>
+
+    <!-- RESERVAS -->
+    <div class="tab-panel" id="panel-reservas">
+      <div id="reservas-content"><div class="loading"><span class="spinner"></span>Cargando reservas...</div></div>
     </div>
 
   </div>
@@ -256,11 +288,13 @@ const TEAMS = [
 
 const ALL = [];
 for (const t of TEAMS) for (let i = 1; i <= 20; i++) ALL.push({ code: t.id+i, team: t.id, teamName: t.name, flag: t.flag });
-const TOTAL = ALL.length; // 980
+const TOTAL = ALL.length;
 
 let currentUser = null;
 let myStickers = {};
 let myFriends = [];
+let myReservations = []; // reservas que YO hice para otros
+let reservedForMe = []; // reservas que otros me hicieron a mí
 
 // --- SAVE QUEUE ---
 const saveQueue = {};
@@ -279,10 +313,9 @@ function scheduleSave(code) {
 let toastTimer;
 function showToast(msg) {
   const t = document.getElementById('toast');
-  t.textContent = msg;
-  t.classList.add('show');
+  t.textContent = msg; t.classList.add('show');
   clearTimeout(toastTimer);
-  toastTimer = setTimeout(() => t.classList.remove('show'), 1400);
+  toastTimer = setTimeout(() => t.classList.remove('show'), 1600);
 }
 
 // --- TAP / HOLD ---
@@ -339,8 +372,7 @@ function updateCell(code, el) {
   if (b) b.remove();
   if (sd.repeated > 0) {
     const badge = document.createElement('span');
-    badge.className = 'rep-badge';
-    badge.textContent = '+' + sd.repeated;
+    badge.className = 'rep-badge'; badge.textContent = '+' + sd.repeated;
     el.appendChild(badge);
   }
 }
@@ -375,8 +407,7 @@ async function doLogin() {
   const { data, error } = await sb.auth.signInWithPassword({ email, password: pass });
   btn.disabled = false; btn.textContent = 'Entrar';
   if (error) { errEl.textContent = 'Email o contraseña incorrectos.'; errEl.style.display = 'block'; return; }
-  currentUser = data.user;
-  await enterApp();
+  currentUser = data.user; await enterApp();
 }
 
 async function doRegister() {
@@ -398,7 +429,7 @@ async function doRegister() {
 
 async function doLogout() {
   await sb.auth.signOut();
-  currentUser = null; myStickers = {}; myFriends = [];
+  currentUser = null; myStickers = {}; myFriends = []; myReservations = []; reservedForMe = [];
   document.getElementById('app').classList.remove('visible');
   document.getElementById('auth-screen').style.display = 'flex';
 }
@@ -407,17 +438,13 @@ async function enterApp() {
   document.getElementById('auth-screen').style.display = 'none';
   document.getElementById('app').classList.add('visible');
   document.getElementById('header-name').textContent = currentUser.user_metadata?.name || currentUser.email;
-  // make sure profile exists
   await sb.from('profiles').upsert(
     { id: currentUser.id, name: currentUser.user_metadata?.name || '', email: currentUser.email },
     { onConflict: 'id' }
   );
   buildTeamSelect();
-  await loadMyStickers();
-  await loadFriends();
-  renderGrid();
-  renderFriends();
-  renderIntercambioBtns();
+  await Promise.all([loadMyStickers(), loadFriends(), loadReservations()]);
+  renderGrid(); renderFriends(); renderIntercambioBtns();
 }
 
 function buildTeamSelect() {
@@ -425,8 +452,7 @@ function buildTeamSelect() {
   sel.innerHTML = '<option value="">Todos los equipos</option>';
   for (const t of TEAMS) {
     const o = document.createElement('option');
-    o.value = t.id; o.textContent = t.flag + ' ' + t.name;
-    sel.appendChild(o);
+    o.value = t.id; o.textContent = t.flag + ' ' + t.name; sel.appendChild(o);
   }
 }
 
@@ -437,20 +463,52 @@ async function loadMyStickers() {
 }
 
 async function loadFriends() {
-  const { data: fships } = await sb.from('friendships')
-    .select('friend_id')
-    .eq('user_id', currentUser.id);
+  const { data: fships } = await sb.from('friendships').select('friend_id').eq('user_id', currentUser.id);
   if (!fships || !fships.length) { myFriends = []; return; }
   const friendIds = fships.map(f => f.friend_id);
-  const { data: profiles } = await sb.from('profiles')
-    .select('id, name, email')
-    .in('id', friendIds);
+  const { data: profiles } = await sb.from('profiles').select('id, name, email').in('id', friendIds);
   const profileMap = {};
   if (profiles) for (const p of profiles) profileMap[p.id] = p;
   myFriends = fships.map(f => ({ friend_id: f.friend_id, profiles: profileMap[f.friend_id] || null }));
 }
 
+async function loadReservations() {
+  // reservas que YO hice
+  const { data: mine } = await sb.from('reservations').select('*').eq('from_user_id', currentUser.id);
+  myReservations = mine || [];
+  // reservas que me hicieron a mí
+  const { data: forme } = await sb.from('reservations').select('*').eq('to_user_id', currentUser.id);
+  reservedForMe = forme || [];
+}
+
 function getState(code) { return myStickers[code] || { state: 'missing', repeated: 0 }; }
+
+function isReservedByMe(code, toUserId) {
+  return myReservations.some(r => r.sticker_num === code && r.to_user_id === toUserId);
+}
+
+// --- RESERVATIONS ---
+async function toggleReservation(code, toUserId, toName) {
+  const already = isReservedByMe(code, toUserId);
+  if (already) {
+    await sb.from('reservations').delete()
+      .eq('from_user_id', currentUser.id)
+      .eq('to_user_id', toUserId)
+      .eq('sticker_num', code);
+    myReservations = myReservations.filter(r => !(r.sticker_num === code && r.to_user_id === toUserId));
+    showToast(code + ' — reserva cancelada');
+  } else {
+    await sb.from('reservations').upsert(
+      { from_user_id: currentUser.id, to_user_id: toUserId, sticker_num: code },
+      { onConflict: 'from_user_id,to_user_id,sticker_num' }
+    );
+    myReservations.push({ from_user_id: currentUser.id, to_user_id: toUserId, sticker_num: code });
+    showToast('🔖 ' + code + ' reservada para ' + toName);
+  }
+  // re-render current intercambio
+  const activeBtn = document.querySelector('.friend-pick-btn.active');
+  if (activeBtn) activeBtn.click();
+}
 
 function renderGrid() {
   const q = document.getElementById('f-search').value.toLowerCase().replace(/\s/g,'');
@@ -481,26 +539,16 @@ function renderGrid() {
   for (const tid of Object.keys(byTeam)) {
     const g = byTeam[tid];
     const lbl = document.createElement('div');
-    lbl.className = 'group-label';
-    lbl.textContent = g.flag + ' ' + g.name;
+    lbl.className = 'group-label'; lbl.textContent = g.flag + ' ' + g.name;
     container.appendChild(lbl);
-
-    const grid = document.createElement('div');
-    grid.className = 'sticker-grid';
-
+    const grid = document.createElement('div'); grid.className = 'sticker-grid';
     for (const s of g.items) {
       const sd = getState(s.code);
       const cell = document.createElement('div');
       cell.className = 'sticker-cell' + (sd.repeated > 0 ? ' repeated' : sd.state === 'have' ? ' have' : '');
-      const codeSpan = document.createElement('span');
-      codeSpan.className = 'sticker-code';
-      codeSpan.textContent = s.code;
+      const codeSpan = document.createElement('span'); codeSpan.className = 'sticker-code'; codeSpan.textContent = s.code;
       cell.appendChild(codeSpan);
-      if (sd.repeated > 0) {
-        const b = document.createElement('span');
-        b.className = 'rep-badge'; b.textContent = '+' + sd.repeated;
-        cell.appendChild(b);
-      }
+      if (sd.repeated > 0) { const b = document.createElement('span'); b.className = 'rep-badge'; b.textContent = '+' + sd.repeated; cell.appendChild(b); }
       cell.addEventListener('mousedown', () => onPointerDown(s.code, cell));
       cell.addEventListener('mouseup', () => onPointerUp(s.code, cell));
       cell.addEventListener('mouseleave', () => onPointerLeave(s.code, cell));
@@ -519,6 +567,7 @@ function goTab(name) {
   document.getElementById('panel-' + name).classList.add('active');
   document.getElementById('nav-' + name).classList.add('active');
   if (name === 'intercambio') renderIntercambioBtns();
+  if (name === 'reservas') renderReservas();
 }
 
 async function searchUsers() {
@@ -547,9 +596,7 @@ async function searchUsers() {
 async function addFriend(friendId) {
   const { error } = await sb.from('friendships').upsert({ user_id: currentUser.id, friend_id: friendId }, { onConflict: 'user_id,friend_id' });
   if (error) { showToast('Error al agregar amigo'); return; }
-  await loadFriends();
-  renderFriends(); renderIntercambioBtns();
-  searchUsers();
+  await loadFriends(); renderFriends(); renderIntercambioBtns(); searchUsers();
   showToast('✅ Amigo agregado');
 }
 
@@ -597,15 +644,100 @@ async function showIntercambio(friendId, friendName) {
   const theyCanGive = ALL.filter(s => { const m = getState(s.code); const t = fs[s.code]||{state:'missing',repeated:0}; return t.repeated > 0 && m.state !== 'have'; });
 
   let html = `<div class="card">
-    <div style="font-size:15px;font-weight:700;margin-bottom:14px;">Intercambio con ${friendName}</div>
+    <div style="font-size:15px;font-weight:700;margin-bottom:4px;">Intercambio con ${friendName}</div>
+    <div style="font-size:12px;color:var(--text-muted);margin-bottom:14px;">Tocá una figurita naranja para reservársela 🔖</div>
     <div class="section-title">📤 Yo puedo darle (${iCanGive.length})</div>`;
-  if (!iCanGive.length) html += '<p style="font-size:13px;color:var(--text-muted);margin-bottom:14px;">No tenés repetidas que le falten.</p>';
-  else { html += '<div class="chips-wrap">'; for (const s of iCanGive.slice(0,80)) html += `<span class="chip chip-amber">${s.code}</span>`; if (iCanGive.length>80) html += `<span class="chip" style="background:#eee;color:#666;">+${iCanGive.length-80}</span>`; html += '</div>'; }
+
+  if (!iCanGive.length) {
+    html += '<p style="font-size:13px;color:var(--text-muted);margin-bottom:14px;">No tenés repetidas que le falten.</p>';
+  } else {
+    html += '<div class="chips-wrap">';
+    for (const s of iCanGive) {
+      const reserved = isReservedByMe(s.code, friendId);
+      html += `<span class="chip ${reserved ? 'chip-reserved' : 'chip-amber chip-reservable'}" 
+        onclick="toggleReservation('${s.code}','${friendId}','${friendName}')" 
+        title="${reserved ? 'Reservada — tocá para cancelar' : 'Tocar para reservar'}">
+        ${reserved ? '🔖 ' : ''}${s.code}</span>`;
+    }
+    if (iCanGive.length > 80) html += `<span class="chip" style="background:#eee;color:#666;">...</span>`;
+    html += '</div>';
+  }
+
   html += `<div class="section-title">📥 Él/ella me puede dar (${theyCanGive.length})</div>`;
-  if (!theyCanGive.length) html += '<p style="font-size:13px;color:var(--text-muted);">No tiene repetidas que te falten.</p>';
-  else { html += '<div class="chips-wrap">'; for (const s of theyCanGive.slice(0,80)) html += `<span class="chip chip-green">${s.code}</span>`; if (theyCanGive.length>80) html += `<span class="chip" style="background:#eee;color:#666;">+${theyCanGive.length-80}</span>`; html += '</div>'; }
+  if (!theyCanGive.length) {
+    html += '<p style="font-size:13px;color:var(--text-muted);">No tiene repetidas que te falten.</p>';
+  } else {
+    html += '<div class="chips-wrap">';
+    for (const s of theyCanGive.slice(0,80)) html += `<span class="chip chip-green">${s.code}</span>`;
+    if (theyCanGive.length > 80) html += `<span class="chip" style="background:#eee;color:#666;">+${theyCanGive.length-80}</span>`;
+    html += '</div>';
+  }
   html += '</div>';
   document.getElementById('intercambio-result').innerHTML = html;
+}
+
+async function renderReservas() {
+  await loadReservations();
+  const container = document.getElementById('reservas-content');
+
+  // build profile map for reserved-for-me senders
+  const senderIds = [...new Set(reservedForMe.map(r => r.from_user_id))];
+  let senderMap = {};
+  if (senderIds.length) {
+    const { data: senders } = await sb.from('profiles').select('id, name').in('id', senderIds);
+    if (senders) for (const s of senders) senderMap[s.id] = s.name;
+  }
+
+  let html = '';
+
+  // Reservas que me hicieron a mí
+  if (reservedForMe.length) {
+    html += `<div class="reserved-section">
+      <div class="reserved-title">🔖 Figuritas que me reservaron</div>`;
+    const bySender = {};
+    for (const r of reservedForMe) {
+      if (!bySender[r.from_user_id]) bySender[r.from_user_id] = [];
+      bySender[r.from_user_id].push(r.sticker_num);
+    }
+    for (const [senderId, codes] of Object.entries(bySender)) {
+      const name = senderMap[senderId] || 'Un amigo';
+      html += `<div class="reserved-by-item">
+        <div class="reserved-by-name">${name} te guardó:</div>
+        <div class="chips-wrap">`;
+      for (const code of codes) html += `<span class="chip chip-reserved">🔖 ${code}</span>`;
+      html += '</div></div>';
+    }
+    html += '</div>';
+  } else {
+    html += '<div class="card"><div class="empty">Nadie te reservó figuritas todavía.</div></div>';
+  }
+
+  // Reservas que YO hice
+  if (myReservations.length) {
+    // get recipient names
+    const recipientIds = [...new Set(myReservations.map(r => r.to_user_id))];
+    const { data: recipients } = await sb.from('profiles').select('id, name').in('id', recipientIds);
+    const recipMap = {};
+    if (recipients) for (const r of recipients) recipMap[r.id] = r.name;
+
+    html += `<div class="card"><div style="font-size:14px;font-weight:700;margin-bottom:12px;">Figuritas que yo reservé</div>`;
+    const byRecipient = {};
+    for (const r of myReservations) {
+      if (!byRecipient[r.to_user_id]) byRecipient[r.to_user_id] = [];
+      byRecipient[r.to_user_id].push(r.sticker_num);
+    }
+    for (const [recipId, codes] of Object.entries(byRecipient)) {
+      const name = recipMap[recipId] || 'Amigo';
+      html += `<div style="margin-bottom:12px;">
+        <div style="font-size:12px;font-weight:600;color:var(--text-muted);margin-bottom:6px;">Para ${name}:</div>
+        <div class="chips-wrap">`;
+      for (const code of codes) html += `<span class="chip chip-amber">${code}</span>`;
+      html += '</div></div>';
+    }
+    html += '</div>';
+  }
+
+  container.innerHTML = html || '<div class="empty">No tenés reservas activas.</div>';
 }
 
 (async () => {
