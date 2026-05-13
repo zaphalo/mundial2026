@@ -772,7 +772,11 @@ async function renderReservas() {
     for (const r of reservedForMe) { if (!bySender[r.from_user_id]) bySender[r.from_user_id] = []; bySender[r.from_user_id].push(r.sticker_num); }
     for (const [sid, codes] of Object.entries(bySender)) {
       html += `<div style="margin-bottom:10px;"><div style="font-size:12px;font-weight:600;color:var(--purple);margin-bottom:4px;">${senderMap[sid]||'Amigo'} te guardó:</div><div class="chips-wrap">`;
-      for (const c of codes) html += `<span class="chip chip-reserved">🔖 ${c}</span>`;
+      for (const c of codes) html += `
+  <div style="display:flex;align-items:center;gap:6px;margin-bottom:6px;">
+    <span class="chip chip-reserved">🔖 ${c}</span>
+    <button class="btn-small add" onclick="recibirFigurita('${c}','${sid}')">✅ Ya la tengo</button>
+  </div>`;
       html += '</div></div>';
     }
     html += '</div>';
@@ -795,7 +799,31 @@ async function renderReservas() {
   }
   container.innerHTML = html || '<div class="empty">No tenés reservas activas.</div>';
 }
-
+async function recibirFigurita(code, fromUserId) {
+  // marcar en el álbum
+  const sd = myStickers[code] || { state: 'missing', repeated: 0 };
+  myStickers[code] = { state: 'have', repeated: sd.repeated };
+  await sb.from('stickers').upsert(
+    { user_id: currentUser.id, sticker_num: code, state: 'have', repeated: sd.repeated },
+    { onConflict: 'user_id,sticker_num' }
+  );
+  // borrar la reserva
+  await sb.from('reservations')
+    .delete()
+    .eq('from_user_id', fromUserId)
+    .eq('to_user_id', currentUser.id)
+    .eq('sticker_num', code);
+  // borrar la reservation_request confirmada
+  await sb.from('reservation_requests')
+    .delete()
+    .eq('from_user_id', fromUserId)
+    .eq('to_user_id', currentUser.id)
+    .eq('sticker_num', code);
+  await loadReservations();
+  renderReservas();
+  updateStats();
+  showToast('🎉 ' + code + ' agregada a tu álbum');
+}
 (async () => {
   const { data } = await sb.auth.getSession();
   if (data?.session?.user) { currentUser = data.session.user; await enterApp(); }
