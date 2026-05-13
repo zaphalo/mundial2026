@@ -3,10 +3,16 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>Álbum Mundial 2026 FT</title>
+<title>Álbum Mundial 2026</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<link rel="manifest" href="/manifest.json">
+<meta name="theme-color" content="#2d6a4f">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Mundial 2026">
+<link rel="apple-touch-icon" href="/icon-192.png">
 <style>
   :root {
     --green: #2d6a4f; --green-light: #d8f3dc; --green-mid: #52b788;
@@ -163,7 +169,7 @@
 
 <div class="auth-screen" id="auth-screen">
   <div class="auth-card">
-    <div class="auth-logo"><span class="ball">⚽</span><h1>Álbum Mundial 2026 FT</h1><p>USA · Canada · México</p></div>
+    <div class="auth-logo"><span class="ball">⚽</span><h1>Álbum Mundial 2026</h1><p>USA · Canada · México</p></div>
     <div class="tabs">
       <button class="tab-btn active" onclick="switchAuthTab('login')">Iniciar sesión</button>
       <button class="tab-btn" onclick="switchAuthTab('register')">Registrarse</button>
@@ -744,6 +750,10 @@ async function renderReservas() {
   const { data } = await sb.auth.getSession();
   if (data?.session?.user) { currentUser = data.session.user; await enterApp(); }
 })();
+
+if ('serviceWorker' in navigator) {
+  navigator.serviceWorker.register('/sw.js');
+}
 </script>
 </body>
 </html>
