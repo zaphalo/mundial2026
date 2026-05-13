@@ -262,7 +262,14 @@
 <script>
 const SUPABASE_URL = 'https://wldqgmuypvhhtvbyllwm.supabase.co';
 const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6IndsZHFnbXV5cHZoaHR2YnlsbHdtIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzg1MzA3MDIsImV4cCI6MjA5NDEwNjcwMn0.hgdX6DD_FsZ9OGtDtOcHo30En0NIr3wzmDJTlpgU24A';
-const sb = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+const sb = supabase.createClient(SUPABASE_URL, SUPABASE_KEY, {
+  auth: {
+    persistSession: true,
+    storageKey: 'mundial2026-auth',
+    storage: window.localStorage,
+    autoRefreshToken: true,
+  }
+});
 
 const TEAMS = [
   {id:"MEX",name:"México",flag:"🇲🇽"},{id:"RSA",name:"Sudáfrica",flag:"🇿🇦"},
