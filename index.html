@@ -12,13 +12,14 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="Mundial 2026">
-<link rel="apple-touch-icon" href="/icon-192.png">
+<link rel="apple-touch-icon" href="https://i.imgur.com/8lZTeCK.png">
 <style>
   :root {
     --green: #2d6a4f; --green-light: #d8f3dc; --green-mid: #52b788;
     --amber: #e76f51; --amber-light: #fde8df;
     --blue: #1e6091; --blue-light: #e0f0ff;
     --purple: #6d3fa0; --purple-light: #ede0f7;
+    --red: #c0392b; --red-light: #fdf0ef;
     --border: #e9ecef; --text: #1a1a2e; --text-muted: #6c757d;
     --bg: #f0f4f0; --radius: 12px; --radius-sm: 8px;
   }
@@ -52,9 +53,10 @@
   .logout-btn { background: rgba(255,255,255,0.15); border: none; color: white; padding: 6px 12px; border-radius: 6px; font-size: 12px; font-weight: 500; cursor: pointer; font-family: 'Outfit', sans-serif; }
   .logout-btn:hover { background: rgba(255,255,255,0.25); }
 
-  .nav-bar { background: white; border-bottom: 1.5px solid var(--border); display: flex; padding: 0 1rem; position: sticky; top: 56px; z-index: 40; overflow-x: auto; }
-  .nav-item { padding: 14px 14px; font-size: 13px; font-weight: 500; color: var(--text-muted); border-bottom: 2.5px solid transparent; cursor: pointer; background: none; border-top: none; border-left: none; border-right: none; font-family: 'Outfit', sans-serif; white-space: nowrap; }
+  .nav-bar { background: white; border-bottom: 1.5px solid var(--border); display: flex; padding: 0 0.5rem; position: sticky; top: 56px; z-index: 40; overflow-x: auto; }
+  .nav-item { padding: 12px 12px; font-size: 12px; font-weight: 500; color: var(--text-muted); border-bottom: 2.5px solid transparent; cursor: pointer; background: none; border-top: none; border-left: none; border-right: none; font-family: 'Outfit', sans-serif; white-space: nowrap; position: relative; }
   .nav-item.active { color: var(--green); border-bottom-color: var(--green); }
+  .nav-badge { position: absolute; top: 6px; right: 4px; background: var(--red); color: white; font-size: 9px; font-weight: 700; border-radius: 999px; min-width: 16px; height: 16px; display: flex; align-items: center; justify-content: center; padding: 0 4px; }
 
   .main-content { flex: 1; padding: 1.25rem; max-width: 960px; margin: 0 auto; width: 100%; }
   .tab-panel { display: none; }
@@ -81,13 +83,7 @@
 
   .group-label { font-size: 12px; font-weight: 600; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.06em; padding: 10px 0 6px; border-bottom: 1.5px solid var(--border); margin-bottom: 8px; margin-top: 16px; }
   .sticker-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(68px, 1fr)); gap: 5px; }
-
-  .sticker-cell {
-    border: 1.5px solid var(--border); border-radius: 8px; padding: 8px 4px 6px;
-    text-align: center; cursor: pointer; background: white; position: relative;
-    user-select: none; -webkit-user-select: none; touch-action: manipulation;
-    transition: transform 0.08s; overflow: hidden;
-  }
+  .sticker-cell { border: 1.5px solid var(--border); border-radius: 8px; padding: 8px 4px 6px; text-align: center; cursor: pointer; background: white; position: relative; user-select: none; -webkit-user-select: none; touch-action: manipulation; transition: transform 0.08s; overflow: hidden; }
   .sticker-cell:active { transform: scale(0.92); }
   .sticker-cell.have { background: var(--green-light); border-color: var(--green-mid); }
   .sticker-cell.repeated { background: var(--amber-light); border-color: var(--amber); }
@@ -98,43 +94,37 @@
   .sticker-code { font-size: 11px; font-weight: 700; display: block; font-family: 'DM Mono', monospace; color: var(--text); line-height: 1.3; }
   .rep-badge { position: absolute; top: 2px; right: 3px; font-size: 8px; font-weight: 700; background: var(--amber); color: white; border-radius: 4px; padding: 1px 3px; line-height: 1.4; }
 
-  /* INTERCAMBIO */
   .card { background: white; border: 1.5px solid var(--border); border-radius: var(--radius); padding: 1.25rem; margin-bottom: 1rem; }
   .section-title { font-size: 13px; font-weight: 600; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 10px; }
   .chips-wrap { display: flex; flex-wrap: wrap; gap: 5px; margin-bottom: 16px; }
-
-  .chip {
-    font-size: 11px; font-weight: 600; padding: 4px 10px; border-radius: 999px;
-    font-family: 'DM Mono', monospace; cursor: default; border: 1.5px solid transparent;
-    transition: all 0.12s;
-  }
+  .chip { font-size: 11px; font-weight: 600; padding: 4px 10px; border-radius: 999px; font-family: 'DM Mono', monospace; cursor: default; border: 1.5px solid transparent; transition: all 0.12s; }
   .chip-green { background: var(--green-light); color: var(--green); border-color: #b2dfc0; }
   .chip-amber { background: var(--amber-light); color: #c0392b; border-color: #f5b8a0; }
-  .chip-reserved {
-    background: var(--purple-light); color: var(--purple); border-color: #c9a8e8;
-    cursor: pointer;
-  }
-  .chip-reservable {
-    cursor: pointer;
-  }
+  .chip-reserved { background: var(--purple-light); color: var(--purple); border-color: #c9a8e8; cursor: pointer; }
+  .chip-reservable { cursor: pointer; }
   .chip-reservable:hover { transform: scale(1.06); box-shadow: 0 2px 6px rgba(0,0,0,0.12); }
   .chip-amber.chip-reservable:hover { background: var(--purple-light); color: var(--purple); border-color: #c9a8e8; }
 
-  .reserved-section {
-    background: var(--purple-light);
-    border: 1.5px solid #c9a8e8;
-    border-radius: var(--radius);
-    padding: 1rem 1.25rem;
-    margin-bottom: 1rem;
-  }
-  .reserved-title {
-    font-size: 13px; font-weight: 700; color: var(--purple);
-    margin-bottom: 8px; display: flex; align-items: center; gap: 6px;
-  }
-  .reserved-by-item { margin-bottom: 10px; }
-  .reserved-by-name { font-size: 12px; font-weight: 600; color: var(--purple); margin-bottom: 4px; }
+  .reserved-section { background: var(--purple-light); border: 1.5px solid #c9a8e8; border-radius: var(--radius); padding: 1rem 1.25rem; margin-bottom: 1rem; }
+  .reserved-title { font-size: 13px; font-weight: 700; color: var(--purple); margin-bottom: 8px; }
 
-  /* FRIENDS */
+  /* REQUEST CARDS */
+  .request-card { background: white; border: 1.5px solid var(--border); border-radius: var(--radius); padding: 1rem 1.25rem; margin-bottom: 10px; }
+  .request-card.pending { border-color: #f5b8a0; background: #fffaf8; }
+  .request-header { display: flex; align-items: center; gap: 10px; margin-bottom: 10px; }
+  .request-avatar { width: 36px; height: 36px; border-radius: 50%; background: var(--amber-light); color: var(--amber); font-size: 13px; font-weight: 700; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+  .request-info { flex: 1; }
+  .request-name { font-size: 13px; font-weight: 600; }
+  .request-time { font-size: 11px; color: var(--text-muted); }
+  .request-sticker { font-size: 14px; font-weight: 700; font-family: 'DM Mono', monospace; color: var(--purple); background: var(--purple-light); display: inline-block; padding: 4px 12px; border-radius: 999px; margin-bottom: 10px; }
+  .request-actions { display: flex; gap: 8px; }
+  .btn-confirm { flex: 1; padding: 9px; background: var(--green); color: white; border: none; border-radius: var(--radius-sm); font-size: 13px; font-weight: 600; cursor: pointer; font-family: 'Outfit', sans-serif; }
+  .btn-reject { flex: 1; padding: 9px; background: white; color: var(--red); border: 1.5px solid var(--red); border-radius: var(--radius-sm); font-size: 13px; font-weight: 600; cursor: pointer; font-family: 'Outfit', sans-serif; }
+  .status-badge { font-size: 11px; font-weight: 600; padding: 3px 10px; border-radius: 999px; }
+  .status-confirmed { background: var(--green-light); color: var(--green); }
+  .status-rejected { background: var(--red-light); color: var(--red); }
+  .status-pending { background: var(--amber-light); color: var(--amber); }
+
   .search-row { display: flex; gap: 8px; margin-bottom: 1rem; }
   .search-row input { flex: 1; padding: 10px 14px; border: 1.5px solid var(--border); border-radius: var(--radius-sm); font-size: 13px; outline: none; font-family: 'Outfit', sans-serif; }
   .search-row input:focus { border-color: var(--green-mid); }
@@ -199,11 +189,11 @@
     <button class="nav-item active" onclick="goTab('album')" id="nav-album">📋 Álbum</button>
     <button class="nav-item" onclick="goTab('amigos')" id="nav-amigos">👥 Amigos</button>
     <button class="nav-item" onclick="goTab('intercambio')" id="nav-intercambio">🔄 Intercambio</button>
+    <button class="nav-item" onclick="goTab('solicitudes')" id="nav-solicitudes">🔔 Solicitudes<span class="nav-badge" id="badge-solicitudes" style="display:none">0</span></button>
     <button class="nav-item" onclick="goTab('reservas')" id="nav-reservas">🔖 Reservas</button>
   </div>
   <div class="main-content">
 
-    <!-- ALBUM -->
     <div class="tab-panel active" id="panel-album">
       <div class="stats-row">
         <div class="stat-box"><div class="stat-num" id="s-have">0</div><div class="stat-label">Tengo</div></div>
@@ -231,7 +221,6 @@
       <div id="album-grid"></div>
     </div>
 
-    <!-- AMIGOS -->
     <div class="tab-panel" id="panel-amigos">
       <div class="search-row">
         <input type="text" id="friend-q" placeholder="Buscar por nombre o email..." />
@@ -242,16 +231,18 @@
       <div class="card" id="friends-list"><div class="empty">Todavía no tenés amigos agregados.</div></div>
     </div>
 
-    <!-- INTERCAMBIO -->
     <div class="tab-panel" id="panel-intercambio">
-      <p style="font-size:13px;color:var(--text-muted);margin-bottom:1rem;">Seleccioná un amigo para ver qué figuritas pueden intercambiar. Tocá una figurita naranja para reservársela.</p>
+      <p style="font-size:13px;color:var(--text-muted);margin-bottom:1rem;">Tocá una figurita naranja para pedírsela a tu amigo. Él la tiene que confirmar.</p>
       <div class="friend-btn-row" id="intercambio-friend-btns"><div class="empty">Agregá amigos para poder comparar colecciones.</div></div>
       <div id="intercambio-result"></div>
     </div>
 
-    <!-- RESERVAS -->
+    <div class="tab-panel" id="panel-solicitudes">
+      <div id="solicitudes-content"><div class="loading"><span class="spinner"></span>Cargando...</div></div>
+    </div>
+
     <div class="tab-panel" id="panel-reservas">
-      <div id="reservas-content"><div class="loading"><span class="spinner"></span>Cargando reservas...</div></div>
+      <div id="reservas-content"><div class="loading"><span class="spinner"></span>Cargando...</div></div>
     </div>
 
   </div>
@@ -263,12 +254,7 @@
 const SUPABASE_URL = 'https://wldqgmuypvhhtvbyllwm.supabase.co';
 const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6IndsZHFnbXV5cHZoaHR2YnlsbHdtIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzg1MzA3MDIsImV4cCI6MjA5NDEwNjcwMn0.hgdX6DD_FsZ9OGtDtOcHo30En0NIr3wzmDJTlpgU24A';
 const sb = supabase.createClient(SUPABASE_URL, SUPABASE_KEY, {
-  auth: {
-    persistSession: true,
-    storageKey: 'mundial2026-auth',
-    storage: window.localStorage,
-    autoRefreshToken: true,
-  }
+  auth: { persistSession: true, storageKey: 'mundial2026-auth', storage: window.localStorage, autoRefreshToken: true }
 });
 
 const TEAMS = [
@@ -306,8 +292,10 @@ const TOTAL = ALL.length;
 let currentUser = null;
 let myStickers = {};
 let myFriends = [];
-let myReservations = []; // reservas que YO hice para otros
-let reservedForMe = []; // reservas que otros me hicieron a mí
+let myReservations = [];
+let reservedForMe = [];
+let pendingRequests = []; // solicitudes que me hicieron a mí (pending)
+let mySentRequests = []; // solicitudes que yo envié
 
 // --- SAVE QUEUE ---
 const saveQueue = {};
@@ -337,71 +325,51 @@ const holdTimers = {};
 const didHold = {};
 
 function onPointerDown(code, el) {
-  didHold[code] = false;
-  el.classList.add('holding');
+  didHold[code] = false; el.classList.add('holding');
   holdTimers[code] = setTimeout(() => {
-    didHold[code] = true;
-    el.classList.remove('holding');
-    el.classList.add('resetting');
+    didHold[code] = true; el.classList.remove('holding'); el.classList.add('resetting');
     setTimeout(() => el.classList.remove('resetting'), 400);
     myStickers[code] = { state: 'missing', repeated: 0 };
-    showToast(code + ' ❌ borrada');
-    scheduleSave(code);
-    updateCell(code, el);
-    updateStats();
+    showToast(code + ' ❌ borrada'); scheduleSave(code); updateCell(code, el); updateStats();
   }, HOLD_MS);
 }
 
 function onPointerUp(code, el) {
-  clearTimeout(holdTimers[code]);
-  el.classList.remove('holding');
+  clearTimeout(holdTimers[code]); el.classList.remove('holding');
   if (!didHold[code]) {
     const sd = myStickers[code] || { state: 'missing', repeated: 0 };
-    if (sd.state === 'missing') {
-      myStickers[code] = { state: 'have', repeated: 0 };
-      showToast(code + ' ✅ la tengo');
-    } else {
-      const r = sd.repeated + 1;
-      myStickers[code] = { state: 'have', repeated: r };
-      showToast(code + ' +' + r + ' repetida' + (r !== 1 ? 's' : ''));
-    }
-    scheduleSave(code);
-    updateCell(code, el);
-    updateStats();
+    if (sd.state === 'missing') { myStickers[code] = { state: 'have', repeated: 0 }; showToast(code + ' ✅ la tengo'); }
+    else { const r = sd.repeated + 1; myStickers[code] = { state: 'have', repeated: r }; showToast(code + ' +' + r + ' repetida' + (r !== 1 ? 's' : '')); }
+    scheduleSave(code); updateCell(code, el); updateStats();
   }
   didHold[code] = false;
 }
 
-function onPointerLeave(code, el) {
-  clearTimeout(holdTimers[code]);
-  el.classList.remove('holding');
-  didHold[code] = false;
-}
+function onPointerLeave(code, el) { clearTimeout(holdTimers[code]); el.classList.remove('holding'); didHold[code] = false; }
 
 function updateCell(code, el) {
   const sd = myStickers[code] || { state: 'missing', repeated: 0 };
   el.className = 'sticker-cell' + (sd.repeated > 0 ? ' repeated' : sd.state === 'have' ? ' have' : '');
-  const b = el.querySelector('.rep-badge');
-  if (b) b.remove();
-  if (sd.repeated > 0) {
-    const badge = document.createElement('span');
-    badge.className = 'rep-badge'; badge.textContent = '+' + sd.repeated;
-    el.appendChild(badge);
-  }
+  const b = el.querySelector('.rep-badge'); if (b) b.remove();
+  if (sd.repeated > 0) { const badge = document.createElement('span'); badge.className = 'rep-badge'; badge.textContent = '+' + sd.repeated; el.appendChild(badge); }
 }
 
 function updateStats() {
   let have = 0, totalRep = 0;
-  for (const s of ALL) {
-    const sd = myStickers[s.code];
-    if (sd && sd.state === 'have') { have++; totalRep += sd.repeated; }
-  }
+  for (const s of ALL) { const sd = myStickers[s.code]; if (sd && sd.state === 'have') { have++; totalRep += sd.repeated; } }
   document.getElementById('s-have').textContent = have;
   document.getElementById('s-missing').textContent = TOTAL - have;
   document.getElementById('s-rep').textContent = totalRep;
   const pct = Math.round(have / TOTAL * 100);
   document.getElementById('s-pct').textContent = pct + '%';
   document.getElementById('prog').style.width = pct + '%';
+}
+
+function updateBadge() {
+  const badge = document.getElementById('badge-solicitudes');
+  const count = pendingRequests.length;
+  if (count > 0) { badge.textContent = count; badge.style.display = 'flex'; }
+  else { badge.style.display = 'none'; }
 }
 
 // --- AUTH ---
@@ -414,8 +382,7 @@ function switchAuthTab(tab) {
 async function doLogin() {
   const email = document.getElementById('login-email').value.trim();
   const pass = document.getElementById('login-pass').value;
-  const errEl = document.getElementById('login-err');
-  const btn = document.getElementById('login-btn');
+  const errEl = document.getElementById('login-err'); const btn = document.getElementById('login-btn');
   errEl.style.display = 'none'; btn.disabled = true; btn.textContent = 'Entrando...';
   const { data, error } = await sb.auth.signInWithPassword({ email, password: pass });
   btn.disabled = false; btn.textContent = 'Entrar';
@@ -427,8 +394,7 @@ async function doRegister() {
   const name = document.getElementById('reg-name').value.trim();
   const email = document.getElementById('reg-email').value.trim();
   const pass = document.getElementById('reg-pass').value;
-  const errEl = document.getElementById('reg-err');
-  const btn = document.getElementById('reg-btn');
+  const errEl = document.getElementById('reg-err'); const btn = document.getElementById('reg-btn');
   errEl.style.display = 'none';
   if (!name || !email || pass.length < 6) { errEl.textContent = 'Completá todos los campos (contraseña mín. 6 caracteres).'; errEl.style.display = 'block'; return; }
   btn.disabled = true; btn.textContent = 'Creando cuenta...';
@@ -442,7 +408,7 @@ async function doRegister() {
 
 async function doLogout() {
   await sb.auth.signOut();
-  currentUser = null; myStickers = {}; myFriends = []; myReservations = []; reservedForMe = [];
+  currentUser = null; myStickers = {}; myFriends = []; myReservations = []; reservedForMe = []; pendingRequests = []; mySentRequests = [];
   document.getElementById('app').classList.remove('visible');
   document.getElementById('auth-screen').style.display = 'flex';
 }
@@ -451,22 +417,21 @@ async function enterApp() {
   document.getElementById('auth-screen').style.display = 'none';
   document.getElementById('app').classList.add('visible');
   document.getElementById('header-name').textContent = currentUser.user_metadata?.name || currentUser.email;
-  await sb.from('profiles').upsert(
-    { id: currentUser.id, name: currentUser.user_metadata?.name || '', email: currentUser.email },
-    { onConflict: 'id' }
-  );
+  await sb.from('profiles').upsert({ id: currentUser.id, name: currentUser.user_metadata?.name || '', email: currentUser.email }, { onConflict: 'id' });
   buildTeamSelect();
-  await Promise.all([loadMyStickers(), loadFriends(), loadReservations()]);
-  renderGrid(); renderFriends(); renderIntercambioBtns();
+  await Promise.all([loadMyStickers(), loadFriends(), loadReservations(), loadRequests()]);
+  renderGrid(); renderFriends(); renderIntercambioBtns(); updateBadge();
+
+  // poll for new requests every 30s
+  setInterval(async () => {
+    await loadRequests(); updateBadge();
+  }, 30000);
 }
 
 function buildTeamSelect() {
   const sel = document.getElementById('f-team');
   sel.innerHTML = '<option value="">Todos los equipos</option>';
-  for (const t of TEAMS) {
-    const o = document.createElement('option');
-    o.value = t.id; o.textContent = t.flag + ' ' + t.name; sel.appendChild(o);
-  }
+  for (const t of TEAMS) { const o = document.createElement('option'); o.value = t.id; o.textContent = t.flag + ' ' + t.name; sel.appendChild(o); }
 }
 
 async function loadMyStickers() {
@@ -486,41 +451,67 @@ async function loadFriends() {
 }
 
 async function loadReservations() {
-  // reservas que YO hice
   const { data: mine } = await sb.from('reservations').select('*').eq('from_user_id', currentUser.id);
   myReservations = mine || [];
-  // reservas que me hicieron a mí
   const { data: forme } = await sb.from('reservations').select('*').eq('to_user_id', currentUser.id);
   reservedForMe = forme || [];
 }
 
-function getState(code) { return myStickers[code] || { state: 'missing', repeated: 0 }; }
-
-function isReservedByMe(code, toUserId) {
-  return myReservations.some(r => r.sticker_num === code && r.to_user_id === toUserId);
+async function loadRequests() {
+  // requests made TO me (pending) — I need to confirm or reject
+  const { data: incoming } = await sb.from('reservation_requests').select('*').eq('to_user_id', currentUser.id).eq('status', 'pending');
+  pendingRequests = incoming || [];
+  // all requests I sent
+  const { data: sent } = await sb.from('reservation_requests').select('*').eq('from_user_id', currentUser.id).order('created_at', { ascending: false });
+  mySentRequests = sent || [];
 }
 
-// --- RESERVATIONS ---
-async function toggleReservation(code, toUserId, toName) {
-  const already = isReservedByMe(code, toUserId);
-  if (already) {
-    await sb.from('reservations').delete()
-      .eq('from_user_id', currentUser.id)
-      .eq('to_user_id', toUserId)
-      .eq('sticker_num', code);
-    myReservations = myReservations.filter(r => !(r.sticker_num === code && r.to_user_id === toUserId));
-    showToast(code + ' — reserva cancelada');
-  } else {
-    await sb.from('reservations').upsert(
-      { from_user_id: currentUser.id, to_user_id: toUserId, sticker_num: code },
-      { onConflict: 'from_user_id,to_user_id,sticker_num' }
-    );
-    myReservations.push({ from_user_id: currentUser.id, to_user_id: toUserId, sticker_num: code });
-    showToast('🔖 ' + code + ' reservada para ' + toName);
+function getState(code) { return myStickers[code] || { state: 'missing', repeated: 0 }; }
+
+function isReservedByMe(code, toUserId) { return myReservations.some(r => r.sticker_num === code && r.to_user_id === toUserId); }
+
+function requestStatusFor(code, toUserId) {
+  const r = mySentRequests.find(r => r.sticker_num === code && r.to_user_id === toUserId);
+  return r ? r.status : null;
+}
+
+// --- RESERVATION REQUEST ---
+async function sendRequest(code, toUserId, toName) {
+  const existing = mySentRequests.find(r => r.sticker_num === code && r.to_user_id === toUserId);
+  if (existing) {
+    if (existing.status === 'pending') { showToast('Ya enviaste esta solicitud, esperá confirmación'); return; }
+    if (existing.status === 'confirmed') { showToast('Ya está confirmada 🎉'); return; }
+    // if rejected, allow resend — delete old and resend
+    await sb.from('reservation_requests').delete().eq('id', existing.id);
+    mySentRequests = mySentRequests.filter(r => r.id !== existing.id);
   }
-  // re-render current intercambio
+  const { error } = await sb.from('reservation_requests').insert({
+    from_user_id: currentUser.id, to_user_id: toUserId, sticker_num: code, status: 'pending'
+  });
+  if (error) { showToast('Error al enviar solicitud'); return; }
+  await loadRequests();
+  showToast('📨 Solicitud enviada a ' + toName);
   const activeBtn = document.querySelector('.friend-pick-btn.active');
   if (activeBtn) activeBtn.click();
+}
+
+async function respondRequest(requestId, status) {
+  const req = pendingRequests.find(r => r.id === requestId);
+  if (!req) return;
+  await sb.from('reservation_requests').update({ status }).eq('id', requestId);
+  if (status === 'confirmed') {
+    // add to reservations
+    await sb.from('reservations').upsert(
+      { from_user_id: req.from_user_id, to_user_id: req.to_user_id, sticker_num: req.sticker_num },
+      { onConflict: 'from_user_id,to_user_id,sticker_num' }
+    );
+    showToast('✅ Reserva confirmada');
+  } else {
+    showToast('❌ Solicitud rechazada');
+  }
+  await Promise.all([loadRequests(), loadReservations()]);
+  updateBadge();
+  renderSolicitudes();
 }
 
 function renderGrid() {
@@ -540,27 +531,21 @@ function renderGrid() {
   });
 
   const byTeam = {};
-  for (const s of filtered) {
-    if (!byTeam[s.team]) byTeam[s.team] = { ...TEAMS.find(t => t.id === s.team), items: [] };
-    byTeam[s.team].items.push(s);
-  }
-
+  for (const s of filtered) { if (!byTeam[s.team]) byTeam[s.team] = { ...TEAMS.find(t => t.id === s.team), items: [] }; byTeam[s.team].items.push(s); }
   const container = document.getElementById('album-grid');
   container.innerHTML = '';
   if (!filtered.length) { container.innerHTML = '<div class="empty">No hay figuritas con ese filtro.</div>'; return; }
 
   for (const tid of Object.keys(byTeam)) {
     const g = byTeam[tid];
-    const lbl = document.createElement('div');
-    lbl.className = 'group-label'; lbl.textContent = g.flag + ' ' + g.name;
+    const lbl = document.createElement('div'); lbl.className = 'group-label'; lbl.textContent = g.flag + ' ' + g.name;
     container.appendChild(lbl);
     const grid = document.createElement('div'); grid.className = 'sticker-grid';
     for (const s of g.items) {
       const sd = getState(s.code);
       const cell = document.createElement('div');
       cell.className = 'sticker-cell' + (sd.repeated > 0 ? ' repeated' : sd.state === 'have' ? ' have' : '');
-      const codeSpan = document.createElement('span'); codeSpan.className = 'sticker-code'; codeSpan.textContent = s.code;
-      cell.appendChild(codeSpan);
+      const codeSpan = document.createElement('span'); codeSpan.className = 'sticker-code'; codeSpan.textContent = s.code; cell.appendChild(codeSpan);
       if (sd.repeated > 0) { const b = document.createElement('span'); b.className = 'rep-badge'; b.textContent = '+' + sd.repeated; cell.appendChild(b); }
       cell.addEventListener('mousedown', () => onPointerDown(s.code, cell));
       cell.addEventListener('mouseup', () => onPointerUp(s.code, cell));
@@ -580,6 +565,7 @@ function goTab(name) {
   document.getElementById('panel-' + name).classList.add('active');
   document.getElementById('nav-' + name).classList.add('active');
   if (name === 'intercambio') renderIntercambioBtns();
+  if (name === 'solicitudes') renderSolicitudes();
   if (name === 'reservas') renderReservas();
 }
 
@@ -638,10 +624,7 @@ function renderIntercambioBtns() {
   const container = document.getElementById('intercambio-friend-btns');
   if (!myFriends.length) { container.innerHTML = '<div class="empty">Agregá amigos para poder comparar colecciones.</div>'; document.getElementById('intercambio-result').innerHTML = ''; return; }
   let html = '';
-  for (const f of myFriends) {
-    const name = f.profiles?.name || 'Usuario';
-    html += `<button class="friend-pick-btn" onclick="showIntercambio('${f.friend_id}','${name.replace(/'/g,'')}')">${name}</button>`;
-  }
+  for (const f of myFriends) { const name = f.profiles?.name || 'Usuario'; html += `<button class="friend-pick-btn" onclick="showIntercambio('${f.friend_id}','${name.replace(/'/g,'')}')">${name}</button>`; }
   container.innerHTML = html;
 }
 
@@ -658,98 +641,158 @@ async function showIntercambio(friendId, friendName) {
 
   let html = `<div class="card">
     <div style="font-size:15px;font-weight:700;margin-bottom:4px;">Intercambio con ${friendName}</div>
-    <div style="font-size:12px;color:var(--text-muted);margin-bottom:14px;">Tocá una figurita naranja para reservársela 🔖</div>
+    <div style="font-size:12px;color:var(--text-muted);margin-bottom:14px;">Tocá una figurita naranja para pedírsela a ${friendName}</div>
     <div class="section-title">📤 Yo puedo darle (${iCanGive.length})</div>`;
 
-  if (!iCanGive.length) {
-    html += '<p style="font-size:13px;color:var(--text-muted);margin-bottom:14px;">No tenés repetidas que le falten.</p>';
-  } else {
+  if (!iCanGive.length) { html += '<p style="font-size:13px;color:var(--text-muted);margin-bottom:14px;">No tenés repetidas que le falten.</p>'; }
+  else {
     html += '<div class="chips-wrap">';
     for (const s of iCanGive) {
       const reserved = isReservedByMe(s.code, friendId);
-      html += `<span class="chip ${reserved ? 'chip-reserved' : 'chip-amber chip-reservable'}" 
-        onclick="toggleReservation('${s.code}','${friendId}','${friendName}')" 
+      html += `<span class="chip ${reserved ? 'chip-reserved' : 'chip-amber chip-reservable'}"
+        onclick="toggleReservation('${s.code}','${friendId}','${friendName}')"
         title="${reserved ? 'Reservada — tocá para cancelar' : 'Tocar para reservar'}">
         ${reserved ? '🔖 ' : ''}${s.code}</span>`;
     }
-    if (iCanGive.length > 80) html += `<span class="chip" style="background:#eee;color:#666;">...</span>`;
     html += '</div>';
   }
 
-  html += `<div class="section-title">📥 Él/ella me puede dar (${theyCanGive.length})</div>`;
-  if (!theyCanGive.length) {
-    html += '<p style="font-size:13px;color:var(--text-muted);">No tiene repetidas que te falten.</p>';
-  } else {
+  html += `<div class="section-title">📥 ${friendName} me puede dar (${theyCanGive.length})</div>`;
+  if (!theyCanGive.length) { html += '<p style="font-size:13px;color:var(--text-muted);">No tiene repetidas que te falten.</p>'; }
+  else {
     html += '<div class="chips-wrap">';
-    for (const s of theyCanGive.slice(0,80)) html += `<span class="chip chip-green">${s.code}</span>`;
-    if (theyCanGive.length > 80) html += `<span class="chip" style="background:#eee;color:#666;">+${theyCanGive.length-80}</span>`;
+    for (const s of theyCanGive) {
+      const status = requestStatusFor(s.code, friendId);
+      let cls = 'chip-green chip-reservable';
+      let label = s.code;
+      let title = 'Tocar para pedírsela';
+      if (status === 'pending') { cls = 'chip chip-amber'; label = '⏳ ' + s.code; title = 'Solicitud pendiente'; }
+      else if (status === 'confirmed') { cls = 'chip chip-reserved'; label = '🔖 ' + s.code; title = 'Confirmada'; }
+      else if (status === 'rejected') { cls = 'chip chip-amber'; label = '✗ ' + s.code; title = 'Rechazada — tocá para pedir de nuevo'; }
+      html += `<span class="chip ${cls}" onclick="sendRequest('${s.code}','${friendId}','${friendName}')" title="${title}">${label}</span>`;
+    }
     html += '</div>';
   }
   html += '</div>';
   document.getElementById('intercambio-result').innerHTML = html;
 }
 
-async function renderReservas() {
-  await loadReservations();
-  const container = document.getElementById('reservas-content');
+async function toggleReservation(code, toUserId, toName) {
+  const already = isReservedByMe(code, toUserId);
+  if (already) {
+    await sb.from('reservations').delete().eq('from_user_id', currentUser.id).eq('to_user_id', toUserId).eq('sticker_num', code);
+    myReservations = myReservations.filter(r => !(r.sticker_num === code && r.to_user_id === toUserId));
+    showToast(code + ' — reserva cancelada');
+  } else {
+    await sb.from('reservations').upsert({ from_user_id: currentUser.id, to_user_id: toUserId, sticker_num: code }, { onConflict: 'from_user_id,to_user_id,sticker_num' });
+    myReservations.push({ from_user_id: currentUser.id, to_user_id: toUserId, sticker_num: code });
+    showToast('🔖 ' + code + ' reservada para ' + toName);
+  }
+  const activeBtn = document.querySelector('.friend-pick-btn.active');
+  if (activeBtn) activeBtn.click();
+}
 
-  // build profile map for reserved-for-me senders
-  const senderIds = [...new Set(reservedForMe.map(r => r.from_user_id))];
+async function renderSolicitudes() {
+  await loadRequests(); updateBadge();
+  const container = document.getElementById('solicitudes-content');
+
+  // get sender profiles
+  const senderIds = [...new Set(pendingRequests.map(r => r.from_user_id))];
   let senderMap = {};
   if (senderIds.length) {
-    const { data: senders } = await sb.from('profiles').select('id, name').in('id', senderIds);
-    if (senders) for (const s of senders) senderMap[s.id] = s.name;
+    const { data } = await sb.from('profiles').select('id, name').in('id', senderIds);
+    if (data) for (const p of data) senderMap[p.id] = p.name;
+  }
+
+  // get recipient profiles for sent requests
+  const recipIds = [...new Set(mySentRequests.map(r => r.to_user_id))];
+  let recipMap = {};
+  if (recipIds.length) {
+    const { data } = await sb.from('profiles').select('id, name').in('id', recipIds);
+    if (data) for (const p of data) recipMap[p.id] = p.name;
   }
 
   let html = '';
 
-  // Reservas que me hicieron a mí
-  if (reservedForMe.length) {
-    html += `<div class="reserved-section">
-      <div class="reserved-title">🔖 Figuritas que me reservaron</div>`;
-    const bySender = {};
-    for (const r of reservedForMe) {
-      if (!bySender[r.from_user_id]) bySender[r.from_user_id] = [];
-      bySender[r.from_user_id].push(r.sticker_num);
+  if (pendingRequests.length) {
+    html += `<div style="font-size:14px;font-weight:700;margin-bottom:12px;">🔔 Te pidieron estas figuritas</div>`;
+    for (const req of pendingRequests) {
+      const name = senderMap[req.from_user_id] || 'Un amigo';
+      const initials = name.split(' ').map(w=>w[0]).join('').slice(0,2).toUpperCase();
+      const time = new Date(req.created_at).toLocaleDateString('es-AR', { day:'numeric', month:'short', hour:'2-digit', minute:'2-digit' });
+      html += `<div class="request-card pending">
+        <div class="request-header">
+          <div class="request-avatar">${initials}</div>
+          <div class="request-info"><div class="request-name">${name}</div><div class="request-time">${time}</div></div>
+        </div>
+        <div style="margin-bottom:10px;">Te pide la figurita: <span class="request-sticker">${req.sticker_num}</span></div>
+        <div class="request-actions">
+          <button class="btn-confirm" onclick="respondRequest(${req.id},'confirmed')">✅ Confirmar</button>
+          <button class="btn-reject" onclick="respondRequest(${req.id},'rejected')">❌ Rechazar</button>
+        </div>
+      </div>`;
     }
-    for (const [senderId, codes] of Object.entries(bySender)) {
-      const name = senderMap[senderId] || 'Un amigo';
-      html += `<div class="reserved-by-item">
-        <div class="reserved-by-name">${name} te guardó:</div>
-        <div class="chips-wrap">`;
-      for (const code of codes) html += `<span class="chip chip-reserved">🔖 ${code}</span>`;
-      html += '</div></div>';
-    }
-    html += '</div>';
   } else {
-    html += '<div class="card"><div class="empty">Nadie te reservó figuritas todavía.</div></div>';
+    html += '<div class="card"><div class="empty">No tenés solicitudes pendientes.</div></div>';
   }
 
-  // Reservas que YO hice
-  if (myReservations.length) {
-    // get recipient names
-    const recipientIds = [...new Set(myReservations.map(r => r.to_user_id))];
-    const { data: recipients } = await sb.from('profiles').select('id, name').in('id', recipientIds);
-    const recipMap = {};
-    if (recipients) for (const r of recipients) recipMap[r.id] = r.name;
-
-    html += `<div class="card"><div style="font-size:14px;font-weight:700;margin-bottom:12px;">Figuritas que yo reservé</div>`;
-    const byRecipient = {};
-    for (const r of myReservations) {
-      if (!byRecipient[r.to_user_id]) byRecipient[r.to_user_id] = [];
-      byRecipient[r.to_user_id].push(r.sticker_num);
+  if (mySentRequests.length) {
+    html += `<div style="font-size:14px;font-weight:700;margin:16px 0 12px;">📨 Mis solicitudes enviadas</div>`;
+    for (const req of mySentRequests) {
+      const name = recipMap[req.to_user_id] || 'Amigo';
+      const time = new Date(req.created_at).toLocaleDateString('es-AR', { day:'numeric', month:'short' });
+      const statusLabel = req.status === 'pending' ? '<span class="status-badge status-pending">⏳ Pendiente</span>'
+        : req.status === 'confirmed' ? '<span class="status-badge status-confirmed">✅ Confirmada</span>'
+        : '<span class="status-badge status-rejected">❌ Rechazada</span>';
+      html += `<div class="request-card">
+        <div style="display:flex;align-items:center;justify-content:space-between;">
+          <div><span style="font-weight:600;">${name}</span> — <span class="request-sticker" style="font-size:12px;">${req.sticker_num}</span><div style="font-size:11px;color:var(--text-muted);margin-top:2px;">${time}</div></div>
+          ${statusLabel}
+        </div>
+      </div>`;
     }
-    for (const [recipId, codes] of Object.entries(byRecipient)) {
-      const name = recipMap[recipId] || 'Amigo';
-      html += `<div style="margin-bottom:12px;">
-        <div style="font-size:12px;font-weight:600;color:var(--text-muted);margin-bottom:6px;">Para ${name}:</div>
-        <div class="chips-wrap">`;
-      for (const code of codes) html += `<span class="chip chip-amber">${code}</span>`;
+  }
+
+  container.innerHTML = html || '<div class="empty">No hay solicitudes.</div>';
+}
+
+async function renderReservas() {
+  await loadReservations();
+  const container = document.getElementById('reservas-content');
+  const senderIds = [...new Set(reservedForMe.map(r => r.from_user_id))];
+  let senderMap = {};
+  if (senderIds.length) {
+    const { data } = await sb.from('profiles').select('id, name').in('id', senderIds);
+    if (data) for (const p of data) senderMap[p.id] = p.name;
+  }
+  let html = '';
+  if (reservedForMe.length) {
+    html += `<div class="reserved-section"><div class="reserved-title">🔖 Figuritas que me reservaron</div>`;
+    const bySender = {};
+    for (const r of reservedForMe) { if (!bySender[r.from_user_id]) bySender[r.from_user_id] = []; bySender[r.from_user_id].push(r.sticker_num); }
+    for (const [sid, codes] of Object.entries(bySender)) {
+      html += `<div style="margin-bottom:10px;"><div style="font-size:12px;font-weight:600;color:var(--purple);margin-bottom:4px;">${senderMap[sid]||'Amigo'} te guardó:</div><div class="chips-wrap">`;
+      for (const c of codes) html += `<span class="chip chip-reserved">🔖 ${c}</span>`;
+      html += '</div></div>';
+    }
+    html += '</div>';
+  } else { html += '<div class="card"><div class="empty">Nadie te reservó figuritas todavía.</div></div>'; }
+
+  if (myReservations.length) {
+    const recipIds = [...new Set(myReservations.map(r => r.to_user_id))];
+    const { data: recips } = await sb.from('profiles').select('id, name').in('id', recipIds);
+    const recipMap = {};
+    if (recips) for (const p of recips) recipMap[p.id] = p.name;
+    html += `<div class="card"><div style="font-size:14px;font-weight:700;margin-bottom:12px;">Figuritas que yo reservé</div>`;
+    const byRecip = {};
+    for (const r of myReservations) { if (!byRecip[r.to_user_id]) byRecip[r.to_user_id] = []; byRecip[r.to_user_id].push(r.sticker_num); }
+    for (const [rid, codes] of Object.entries(byRecip)) {
+      html += `<div style="margin-bottom:12px;"><div style="font-size:12px;font-weight:600;color:var(--text-muted);margin-bottom:6px;">Para ${recipMap[rid]||'Amigo'}:</div><div class="chips-wrap">`;
+      for (const c of codes) html += `<span class="chip chip-amber">${c}</span>`;
       html += '</div></div>';
     }
     html += '</div>';
   }
-
   container.innerHTML = html || '<div class="empty">No tenés reservas activas.</div>';
 }
 
@@ -758,9 +801,7 @@ async function renderReservas() {
   if (data?.session?.user) { currentUser = data.session.user; await enterApp(); }
 })();
 
-if ('serviceWorker' in navigator) {
-  navigator.serviceWorker.register('/sw.js');
-}
+if ('serviceWorker' in navigator) { navigator.serviceWorker.register('/sw.js'); }
 </script>
 </body>
 </html>
