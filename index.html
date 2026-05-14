@@ -17,7 +17,6 @@
   :root {
     --green: #2d6a4f; --green-light: #d8f3dc; --green-mid: #52b788;
     --amber: #e76f51; --amber-light: #fde8df;
-    --blue: #1e6091; --blue-light: #e0f0ff;
     --purple: #6d3fa0; --purple-light: #ede0f7;
     --red: #c0392b; --red-light: #fdf0ef;
     --border: #e9ecef; --text: #1a1a2e; --text-muted: #6c757d;
@@ -56,7 +55,7 @@
   .nav-bar { background: white; border-bottom: 1.5px solid var(--border); display: flex; padding: 0 0.5rem; position: sticky; top: 56px; z-index: 40; overflow-x: auto; }
   .nav-item { padding: 12px 12px; font-size: 12px; font-weight: 500; color: var(--text-muted); border-bottom: 2.5px solid transparent; cursor: pointer; background: none; border-top: none; border-left: none; border-right: none; font-family: 'Outfit', sans-serif; white-space: nowrap; position: relative; }
   .nav-item.active { color: var(--green); border-bottom-color: var(--green); }
-  .nav-badge { position: absolute; top: 6px; right: 4px; background: var(--red); color: white; font-size: 9px; font-weight: 700; border-radius: 999px; min-width: 16px; height: 16px; display: flex; align-items: center; justify-content: center; padding: 0 4px; }
+  .nav-badge { position: absolute; top: 6px; right: 2px; background: var(--red); color: white; font-size: 9px; font-weight: 700; border-radius: 999px; min-width: 16px; height: 16px; display: flex; align-items: center; justify-content: center; padding: 0 4px; }
 
   .main-content { flex: 1; padding: 1.25rem; max-width: 960px; margin: 0 auto; width: 100%; }
   .tab-panel { display: none; }
@@ -108,11 +107,12 @@
   .reserved-section { background: var(--purple-light); border: 1.5px solid #c9a8e8; border-radius: var(--radius); padding: 1rem 1.25rem; margin-bottom: 1rem; }
   .reserved-title { font-size: 13px; font-weight: 700; color: var(--purple); margin-bottom: 8px; }
 
-  /* REQUEST CARDS */
   .request-card { background: white; border: 1.5px solid var(--border); border-radius: var(--radius); padding: 1rem 1.25rem; margin-bottom: 10px; }
   .request-card.pending { border-color: #f5b8a0; background: #fffaf8; }
+  .request-card.friend-pending { border-color: #b2dfc0; background: #f4fdf6; }
   .request-header { display: flex; align-items: center; gap: 10px; margin-bottom: 10px; }
   .request-avatar { width: 36px; height: 36px; border-radius: 50%; background: var(--amber-light); color: var(--amber); font-size: 13px; font-weight: 700; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+  .request-avatar.green { background: var(--green-light); color: var(--green); }
   .request-info { flex: 1; }
   .request-name { font-size: 13px; font-weight: 600; }
   .request-time { font-size: 11px; color: var(--text-muted); }
@@ -187,9 +187,9 @@
   </div>
   <div class="nav-bar">
     <button class="nav-item active" onclick="goTab('album')" id="nav-album">📋 Álbum</button>
-    <button class="nav-item" onclick="goTab('amigos')" id="nav-amigos">👥 Amigos</button>
+    <button class="nav-item" onclick="goTab('amigos')" id="nav-amigos">👥 Amigos<span class="nav-badge" id="badge-amigos" style="display:none">0</span></button>
     <button class="nav-item" onclick="goTab('intercambio')" id="nav-intercambio">🔄 Intercambio</button>
-    <button class="nav-item" onclick="goTab('solicitudes')" id="nav-solicitudes">🔔 Solicitudes<span class="nav-badge" id="badge-solicitudes" style="display:none">0</span></button>
+    <button class="nav-item" onclick="goTab('solicitudes')" id="nav-solicitudes">🔔 Avisos<span class="nav-badge" id="badge-solicitudes" style="display:none">0</span></button>
     <button class="nav-item" onclick="goTab('reservas')" id="nav-reservas">🔖 Reservas</button>
   </div>
   <div class="main-content">
@@ -227,12 +227,13 @@
         <button class="btn-search" onclick="searchUsers()">Buscar</button>
       </div>
       <div id="search-results"></div>
+      <div id="pending-friend-requests"></div>
       <div class="section-title" style="margin-top:1rem;">Mis amigos</div>
       <div class="card" id="friends-list"><div class="empty">Todavía no tenés amigos agregados.</div></div>
     </div>
 
     <div class="tab-panel" id="panel-intercambio">
-      <p style="font-size:13px;color:var(--text-muted);margin-bottom:1rem;">Tocá una figurita naranja para pedírsela a tu amigo. Él la tiene que confirmar.</p>
+      <p style="font-size:13px;color:var(--text-muted);margin-bottom:1rem;">Tocá una figurita verde para pedírsela a tu amigo.</p>
       <div class="friend-btn-row" id="intercambio-friend-btns"><div class="empty">Agregá amigos para poder comparar colecciones.</div></div>
       <div id="intercambio-result"></div>
     </div>
@@ -294,10 +295,11 @@ let myStickers = {};
 let myFriends = [];
 let myReservations = [];
 let reservedForMe = [];
-let pendingRequests = []; // solicitudes que me hicieron a mí (pending)
-let mySentRequests = []; // solicitudes que yo envié
+let pendingRequests = [];
+let mySentRequests = [];
+let pendingFriendRequests = []; // solicitudes de amistad que me hicieron
+let mySentFriendRequests = []; // solicitudes de amistad que yo envié
 
-// --- SAVE QUEUE ---
 const saveQueue = {};
 function scheduleSave(code) {
   clearTimeout(saveQueue[code]);
@@ -310,7 +312,6 @@ function scheduleSave(code) {
   }, 700);
 }
 
-// --- TOAST ---
 let toastTimer;
 function showToast(msg) {
   const t = document.getElementById('toast');
@@ -319,7 +320,6 @@ function showToast(msg) {
   toastTimer = setTimeout(() => t.classList.remove('show'), 1600);
 }
 
-// --- TAP / HOLD ---
 const HOLD_MS = 600;
 const holdTimers = {};
 const didHold = {};
@@ -365,14 +365,15 @@ function updateStats() {
   document.getElementById('prog').style.width = pct + '%';
 }
 
-function updateBadge() {
-  const badge = document.getElementById('badge-solicitudes');
-  const count = pendingRequests.length;
-  if (count > 0) { badge.textContent = count; badge.style.display = 'flex'; }
-  else { badge.style.display = 'none'; }
+function updateBadges() {
+  const bs = document.getElementById('badge-solicitudes');
+  const ba = document.getElementById('badge-amigos');
+  const sc = pendingRequests.length;
+  const fc = pendingFriendRequests.length;
+  bs.textContent = sc; bs.style.display = sc > 0 ? 'flex' : 'none';
+  ba.textContent = fc; ba.style.display = fc > 0 ? 'flex' : 'none';
 }
 
-// --- AUTH ---
 function switchAuthTab(tab) {
   document.querySelectorAll('.tab-btn').forEach((b,i) => b.classList.toggle('active', (i===0)===(tab==='login')));
   document.getElementById('auth-login').style.display = tab==='login'?'block':'none';
@@ -408,7 +409,8 @@ async function doRegister() {
 
 async function doLogout() {
   await sb.auth.signOut();
-  currentUser = null; myStickers = {}; myFriends = []; myReservations = []; reservedForMe = []; pendingRequests = []; mySentRequests = [];
+  currentUser = null; myStickers = {}; myFriends = []; myReservations = []; reservedForMe = [];
+  pendingRequests = []; mySentRequests = []; pendingFriendRequests = []; mySentFriendRequests = [];
   document.getElementById('app').classList.remove('visible');
   document.getElementById('auth-screen').style.display = 'flex';
 }
@@ -419,12 +421,10 @@ async function enterApp() {
   document.getElementById('header-name').textContent = currentUser.user_metadata?.name || currentUser.email;
   await sb.from('profiles').upsert({ id: currentUser.id, name: currentUser.user_metadata?.name || '', email: currentUser.email }, { onConflict: 'id' });
   buildTeamSelect();
-  await Promise.all([loadMyStickers(), loadFriends(), loadReservations(), loadRequests()]);
-  renderGrid(); renderFriends(); renderIntercambioBtns(); updateBadge();
-
-  // poll for new requests every 30s
+  await Promise.all([loadMyStickers(), loadFriends(), loadReservations(), loadRequests(), loadFriendRequests()]);
+  renderGrid(); renderFriends(); renderIntercambioBtns(); updateBadges();
   setInterval(async () => {
-    await loadRequests(); updateBadge();
+    await Promise.all([loadRequests(), loadFriendRequests()]); updateBadges();
   }, 30000);
 }
 
@@ -458,36 +458,62 @@ async function loadReservations() {
 }
 
 async function loadRequests() {
-  // requests made TO me (pending) — I need to confirm or reject
   const { data: incoming } = await sb.from('reservation_requests').select('*').eq('to_user_id', currentUser.id).eq('status', 'pending');
   pendingRequests = incoming || [];
-  // all requests I sent
   const { data: sent } = await sb.from('reservation_requests').select('*').eq('from_user_id', currentUser.id).order('created_at', { ascending: false });
   mySentRequests = sent || [];
 }
 
+async function loadFriendRequests() {
+  const { data: incoming } = await sb.from('friend_requests').select('*').eq('to_user_id', currentUser.id).eq('status', 'pending');
+  pendingFriendRequests = incoming || [];
+  const { data: sent } = await sb.from('friend_requests').select('*').eq('from_user_id', currentUser.id);
+  mySentFriendRequests = sent || [];
+}
+
 function getState(code) { return myStickers[code] || { state: 'missing', repeated: 0 }; }
-
 function isReservedByMe(code, toUserId) { return myReservations.some(r => r.sticker_num === code && r.to_user_id === toUserId); }
-
 function requestStatusFor(code, toUserId) {
   const r = mySentRequests.find(r => r.sticker_num === code && r.to_user_id === toUserId);
   return r ? r.status : null;
 }
+function friendRequestStatusFor(toUserId) {
+  const r = mySentFriendRequests.find(r => r.to_user_id === toUserId);
+  return r ? r.status : null;
+}
 
-// --- RESERVATION REQUEST ---
+async function sendFriendRequest(toUserId) {
+  const { error } = await sb.from('friend_requests').upsert(
+    { from_user_id: currentUser.id, to_user_id: toUserId, status: 'pending' },
+    { onConflict: 'from_user_id,to_user_id' }
+  );
+  if (error) { showToast('Error al enviar solicitud'); return; }
+  await loadFriendRequests(); updateBadges(); searchUsers();
+  showToast('📨 Solicitud de amistad enviada');
+}
+
+async function respondFriendRequest(requestId, fromUserId, status) {
+  await sb.from('friend_requests').update({ status }).eq('id', requestId);
+  if (status === 'accepted') {
+    // crear amistad en ambas direcciones
+    await sb.from('friendships').upsert({ user_id: currentUser.id, friend_id: fromUserId }, { onConflict: 'user_id,friend_id' });
+    await sb.from('friendships').upsert({ user_id: fromUserId, friend_id: currentUser.id }, { onConflict: 'user_id,friend_id' });
+    showToast('🎉 ¡Ahora son amigos!');
+  } else {
+    showToast('Solicitud rechazada');
+  }
+  await Promise.all([loadFriends(), loadFriendRequests()]); updateBadges(); renderFriends(); renderIntercambioBtns();
+}
+
 async function sendRequest(code, toUserId, toName) {
   const existing = mySentRequests.find(r => r.sticker_num === code && r.to_user_id === toUserId);
   if (existing) {
     if (existing.status === 'pending') { showToast('Ya enviaste esta solicitud, esperá confirmación'); return; }
     if (existing.status === 'confirmed') { showToast('Ya está confirmada 🎉'); return; }
-    // if rejected, allow resend — delete old and resend
     await sb.from('reservation_requests').delete().eq('id', existing.id);
     mySentRequests = mySentRequests.filter(r => r.id !== existing.id);
   }
-  const { error } = await sb.from('reservation_requests').insert({
-    from_user_id: currentUser.id, to_user_id: toUserId, sticker_num: code, status: 'pending'
-  });
+  const { error } = await sb.from('reservation_requests').insert({ from_user_id: currentUser.id, to_user_id: toUserId, sticker_num: code, status: 'pending' });
   if (error) { showToast('Error al enviar solicitud'); return; }
   await loadRequests();
   showToast('📨 Solicitud enviada a ' + toName);
@@ -500,18 +526,41 @@ async function respondRequest(requestId, status) {
   if (!req) return;
   await sb.from('reservation_requests').update({ status }).eq('id', requestId);
   if (status === 'confirmed') {
-    // add to reservations
     await sb.from('reservations').upsert(
       { from_user_id: req.from_user_id, to_user_id: req.to_user_id, sticker_num: req.sticker_num },
       { onConflict: 'from_user_id,to_user_id,sticker_num' }
     );
     showToast('✅ Reserva confirmada');
+  } else { showToast('❌ Solicitud rechazada'); }
+  await Promise.all([loadRequests(), loadReservations()]); updateBadges(); renderSolicitudes();
+}
+
+async function recibirFigurita(code, fromUserId) {
+  const sd = myStickers[code] || { state: 'missing', repeated: 0 };
+  myStickers[code] = { state: 'have', repeated: sd.repeated };
+  await sb.from('stickers').upsert(
+    { user_id: currentUser.id, sticker_num: code, state: 'have', repeated: sd.repeated },
+    { onConflict: 'user_id,sticker_num' }
+  );
+  await sb.from('reservations').delete().eq('from_user_id', fromUserId).eq('to_user_id', currentUser.id).eq('sticker_num', code);
+  await sb.from('reservation_requests').delete().eq('from_user_id', fromUserId).eq('to_user_id', currentUser.id).eq('sticker_num', code);
+  await loadReservations(); renderReservas(); updateStats();
+  showToast('🎉 ' + code + ' agregada a tu álbum');
+}
+
+async function toggleReservation(code, toUserId, toName) {
+  const already = isReservedByMe(code, toUserId);
+  if (already) {
+    await sb.from('reservations').delete().eq('from_user_id', currentUser.id).eq('to_user_id', toUserId).eq('sticker_num', code);
+    myReservations = myReservations.filter(r => !(r.sticker_num === code && r.to_user_id === toUserId));
+    showToast(code + ' — reserva cancelada');
   } else {
-    showToast('❌ Solicitud rechazada');
+    await sb.from('reservations').upsert({ from_user_id: currentUser.id, to_user_id: toUserId, sticker_num: code }, { onConflict: 'from_user_id,to_user_id,sticker_num' });
+    myReservations.push({ from_user_id: currentUser.id, to_user_id: toUserId, sticker_num: code });
+    showToast('🔖 ' + code + ' reservada para ' + toName);
   }
-  await Promise.all([loadRequests(), loadReservations()]);
-  updateBadge();
-  renderSolicitudes();
+  const activeBtn = document.querySelector('.friend-pick-btn.active');
+  if (activeBtn) activeBtn.click();
 }
 
 function renderGrid() {
@@ -519,7 +568,6 @@ function renderGrid() {
   const teamF = document.getElementById('f-team').value;
   const statusF = document.getElementById('f-status').value;
   updateStats();
-
   const filtered = ALL.filter(s => {
     if (teamF && s.team !== teamF) return false;
     if (q && !s.code.toLowerCase().includes(q) && !s.teamName.toLowerCase().includes(q)) return false;
@@ -529,13 +577,11 @@ function renderGrid() {
     if (statusF === 'repeated' && sd.repeated === 0) return false;
     return true;
   });
-
   const byTeam = {};
   for (const s of filtered) { if (!byTeam[s.team]) byTeam[s.team] = { ...TEAMS.find(t => t.id === s.team), items: [] }; byTeam[s.team].items.push(s); }
   const container = document.getElementById('album-grid');
   container.innerHTML = '';
   if (!filtered.length) { container.innerHTML = '<div class="empty">No hay figuritas con ese filtro.</div>'; return; }
-
   for (const tid of Object.keys(byTeam)) {
     const g = byTeam[tid];
     const lbl = document.createElement('div'); lbl.className = 'group-label'; lbl.textContent = g.flag + ' ' + g.name;
@@ -567,6 +613,7 @@ function goTab(name) {
   if (name === 'intercambio') renderIntercambioBtns();
   if (name === 'solicitudes') renderSolicitudes();
   if (name === 'reservas') renderReservas();
+  if (name === 'amigos') renderFriends();
 }
 
 async function searchUsers() {
@@ -580,31 +627,59 @@ async function searchUsers() {
   let html = '<div class="card">';
   for (const u of data) {
     const isFriend = friendIds.includes(u.id);
+    const frStatus = friendRequestStatusFor(u.id);
     const initials = (u.name || u.email).split(' ').map(w => w[0]).join('').slice(0,2).toUpperCase();
+    let action = '';
+    if (isFriend) action = '<span style="font-size:12px;color:var(--green);font-weight:500;">✓ Amigo</span>';
+    else if (frStatus === 'pending') action = '<span class="status-badge status-pending">⏳ Pendiente</span>';
+    else if (frStatus === 'accepted') action = '<span style="font-size:12px;color:var(--green);font-weight:500;">✓ Amigo</span>';
+    else action = `<button class="btn-small add" onclick="sendFriendRequest('${u.id}')">+ Agregar</button>`;
     html += `<div class="friend-row">
       <div class="avatar">${initials}</div>
       <div class="friend-info"><div class="friend-name">${u.name||'Sin nombre'}</div><div class="friend-meta">${u.email||''}</div></div>
-      ${isFriend ? '<span style="font-size:12px;color:var(--green);font-weight:500;">✓ Amigo</span>'
-        : `<button class="btn-small add" onclick="addFriend('${u.id}','${(u.name||'').replace(/'/g,'')}','${(u.email||'').replace(/'/g,'')}')">+ Agregar</button>`}
+      ${action}
     </div>`;
   }
   html += '</div>';
   container.innerHTML = html;
 }
 
-async function addFriend(friendId) {
-  const { error } = await sb.from('friendships').upsert({ user_id: currentUser.id, friend_id: friendId }, { onConflict: 'user_id,friend_id' });
-  if (error) { showToast('Error al agregar amigo'); return; }
-  await loadFriends(); renderFriends(); renderIntercambioBtns(); searchUsers();
-  showToast('✅ Amigo agregado');
-}
-
 async function removeFriend(friendId) {
   await sb.from('friendships').delete().eq('user_id', currentUser.id).eq('friend_id', friendId);
+  await sb.from('friendships').delete().eq('user_id', friendId).eq('friend_id', currentUser.id);
   await loadFriends(); renderFriends(); renderIntercambioBtns();
 }
 
 function renderFriends() {
+  // pending friend requests
+  const reqContainer = document.getElementById('pending-friend-requests');
+  if (pendingFriendRequests.length) {
+    const senderIds = [...new Set(pendingFriendRequests.map(r => r.from_user_id))];
+    sb.from('profiles').select('id, name, email').in('id', senderIds).then(({ data: senders }) => {
+      const senderMap = {};
+      if (senders) for (const s of senders) senderMap[s.id] = s;
+      let html = `<div style="font-size:13px;font-weight:700;margin-bottom:10px;color:var(--green);">👥 Solicitudes de amistad</div>`;
+      for (const req of pendingFriendRequests) {
+        const p = senderMap[req.from_user_id];
+        const name = p?.name || 'Alguien';
+        const initials = name.split(' ').map(w=>w[0]).join('').slice(0,2).toUpperCase();
+        const time = new Date(req.created_at).toLocaleDateString('es-AR', { day:'numeric', month:'short' });
+        html += `<div class="request-card friend-pending">
+          <div class="request-header">
+            <div class="request-avatar green">${initials}</div>
+            <div class="request-info"><div class="request-name">${name}</div><div class="request-time">${p?.email||''} · ${time}</div></div>
+          </div>
+          <div class="request-actions">
+            <button class="btn-confirm" onclick="respondFriendRequest(${req.id},'${req.from_user_id}','accepted')">✅ Aceptar</button>
+            <button class="btn-reject" onclick="respondFriendRequest(${req.id},'${req.from_user_id}','rejected')">❌ Rechazar</button>
+          </div>
+        </div>`;
+      }
+      reqContainer.innerHTML = html;
+    });
+  } else { reqContainer.innerHTML = ''; }
+
+  // friends list
   const container = document.getElementById('friends-list');
   if (!myFriends.length) { container.innerHTML = '<div class="empty">Todavía no tenés amigos agregados.</div>'; return; }
   let html = '';
@@ -635,31 +710,26 @@ async function showIntercambio(friendId, friendName) {
   const { data } = await sb.from('stickers').select('*').eq('user_id', friendId);
   const fs = {};
   if (data) for (const r of data) fs[r.sticker_num] = { state: r.state, repeated: r.repeated };
-  
-const iCanGive = ALL.filter(s => {
-  const m = getState(s.code);
-  const t = fs[s.code]||{state:'missing',repeated:0};
-  if (m.repeated === 0 || t.state === 'have') return false;
-  // contar cuántas repetidas tengo vs cuántas ya reservé para otros
-  const totalReserved = myReservations.filter(r => r.sticker_num === s.code).length;
-  return m.repeated > totalReserved;
-});
+
+  const iCanGive = ALL.filter(s => {
+    const m = getState(s.code); const t = fs[s.code]||{state:'missing',repeated:0};
+    if (m.repeated === 0 || t.state === 'have') return false;
+    const totalReserved = myReservations.filter(r => r.sticker_num === s.code).length;
+    return m.repeated > totalReserved;
+  });
   const theyCanGive = ALL.filter(s => { const m = getState(s.code); const t = fs[s.code]||{state:'missing',repeated:0}; return t.repeated > 0 && m.state !== 'have'; });
 
   let html = `<div class="card">
     <div style="font-size:15px;font-weight:700;margin-bottom:4px;">Intercambio con ${friendName}</div>
-    <div style="font-size:12px;color:var(--text-muted);margin-bottom:14px;">Tocá una figurita naranja para pedírsela a ${friendName}</div>
+    <div style="font-size:12px;color:var(--text-muted);margin-bottom:14px;">Tocá una figurita naranja para reservársela · Tocá una verde para pedírsela</div>
     <div class="section-title">📤 Yo puedo darle (${iCanGive.length})</div>`;
 
-  if (!iCanGive.length) { html += '<p style="font-size:13px;color:var(--text-muted);margin-bottom:14px;">No tenés repetidas que le falten.</p>'; }
+  if (!iCanGive.length) { html += '<p style="font-size:13px;color:var(--text-muted);margin-bottom:14px;">No tenés repetidas disponibles.</p>'; }
   else {
     html += '<div class="chips-wrap">';
     for (const s of iCanGive) {
       const reserved = isReservedByMe(s.code, friendId);
-      html += `<span class="chip ${reserved ? 'chip-reserved' : 'chip-amber chip-reservable'}"
-        onclick="toggleReservation('${s.code}','${friendId}','${friendName}')"
-        title="${reserved ? 'Reservada — tocá para cancelar' : 'Tocar para reservar'}">
-        ${reserved ? '🔖 ' : ''}${s.code}</span>`;
+      html += `<span class="chip ${reserved ? 'chip-reserved' : 'chip-amber chip-reservable'}" onclick="toggleReservation('${s.code}','${friendId}','${friendName}')" title="${reserved ? 'Reservada — tocá para cancelar' : 'Tocar para reservar'}">${reserved ? '🔖 ' : ''}${s.code}</span>`;
     }
     html += '</div>';
   }
@@ -670,13 +740,11 @@ const iCanGive = ALL.filter(s => {
     html += '<div class="chips-wrap">';
     for (const s of theyCanGive) {
       const status = requestStatusFor(s.code, friendId);
-      let cls = 'chip-green chip-reservable';
-      let label = s.code;
-      let title = 'Tocar para pedírsela';
-      if (status === 'pending') { cls = 'chip chip-amber'; label = '⏳ ' + s.code; title = 'Solicitud pendiente'; }
-      else if (status === 'confirmed') { cls = 'chip chip-reserved'; label = '🔖 ' + s.code; title = 'Confirmada'; }
-      else if (status === 'rejected') { cls = 'chip chip-amber'; label = '✗ ' + s.code; title = 'Rechazada — tocá para pedir de nuevo'; }
-      html += `<span class="chip ${cls}" onclick="sendRequest('${s.code}','${friendId}','${friendName}')" title="${title}">${label}</span>`;
+      let cls = 'chip-green chip-reservable'; let label = s.code;
+      if (status === 'pending') { cls = 'chip-amber'; label = '⏳ ' + s.code; }
+      else if (status === 'confirmed') { cls = 'chip-reserved'; label = '🔖 ' + s.code; }
+      else if (status === 'rejected') { cls = 'chip-amber'; label = '✗ ' + s.code; }
+      html += `<span class="chip ${cls}" onclick="sendRequest('${s.code}','${friendId}','${friendName}')">${label}</span>`;
     }
     html += '</div>';
   }
@@ -684,43 +752,16 @@ const iCanGive = ALL.filter(s => {
   document.getElementById('intercambio-result').innerHTML = html;
 }
 
-async function toggleReservation(code, toUserId, toName) {
-  const already = isReservedByMe(code, toUserId);
-  if (already) {
-    await sb.from('reservations').delete().eq('from_user_id', currentUser.id).eq('to_user_id', toUserId).eq('sticker_num', code);
-    myReservations = myReservations.filter(r => !(r.sticker_num === code && r.to_user_id === toUserId));
-    showToast(code + ' — reserva cancelada');
-  } else {
-    await sb.from('reservations').upsert({ from_user_id: currentUser.id, to_user_id: toUserId, sticker_num: code }, { onConflict: 'from_user_id,to_user_id,sticker_num' });
-    myReservations.push({ from_user_id: currentUser.id, to_user_id: toUserId, sticker_num: code });
-    showToast('🔖 ' + code + ' reservada para ' + toName);
-  }
-  const activeBtn = document.querySelector('.friend-pick-btn.active');
-  if (activeBtn) activeBtn.click();
-}
-
 async function renderSolicitudes() {
-  await loadRequests(); updateBadge();
+  await loadRequests(); updateBadges();
   const container = document.getElementById('solicitudes-content');
-
-  // get sender profiles
   const senderIds = [...new Set(pendingRequests.map(r => r.from_user_id))];
   let senderMap = {};
-  if (senderIds.length) {
-    const { data } = await sb.from('profiles').select('id, name').in('id', senderIds);
-    if (data) for (const p of data) senderMap[p.id] = p.name;
-  }
-
-  // get recipient profiles for sent requests
+  if (senderIds.length) { const { data } = await sb.from('profiles').select('id, name').in('id', senderIds); if (data) for (const p of data) senderMap[p.id] = p.name; }
   const recipIds = [...new Set(mySentRequests.map(r => r.to_user_id))];
   let recipMap = {};
-  if (recipIds.length) {
-    const { data } = await sb.from('profiles').select('id, name').in('id', recipIds);
-    if (data) for (const p of data) recipMap[p.id] = p.name;
-  }
-
+  if (recipIds.length) { const { data } = await sb.from('profiles').select('id, name').in('id', recipIds); if (data) for (const p of data) recipMap[p.id] = p.name; }
   let html = '';
-
   if (pendingRequests.length) {
     html += `<div style="font-size:14px;font-weight:700;margin-bottom:12px;">🔔 Te pidieron estas figuritas</div>`;
     for (const req of pendingRequests) {
@@ -728,38 +769,24 @@ async function renderSolicitudes() {
       const initials = name.split(' ').map(w=>w[0]).join('').slice(0,2).toUpperCase();
       const time = new Date(req.created_at).toLocaleDateString('es-AR', { day:'numeric', month:'short', hour:'2-digit', minute:'2-digit' });
       html += `<div class="request-card pending">
-        <div class="request-header">
-          <div class="request-avatar">${initials}</div>
-          <div class="request-info"><div class="request-name">${name}</div><div class="request-time">${time}</div></div>
-        </div>
-        <div style="margin-bottom:10px;">Te pide la figurita: <span class="request-sticker">${req.sticker_num}</span></div>
+        <div class="request-header"><div class="request-avatar">${initials}</div><div class="request-info"><div class="request-name">${name}</div><div class="request-time">${time}</div></div></div>
+        <div style="margin-bottom:10px;">Te pide: <span class="request-sticker">${req.sticker_num}</span></div>
         <div class="request-actions">
           <button class="btn-confirm" onclick="respondRequest(${req.id},'confirmed')">✅ Confirmar</button>
           <button class="btn-reject" onclick="respondRequest(${req.id},'rejected')">❌ Rechazar</button>
         </div>
       </div>`;
     }
-  } else {
-    html += '<div class="card"><div class="empty">No tenés solicitudes pendientes.</div></div>';
-  }
-
+  } else { html += '<div class="card"><div class="empty">No tenés solicitudes pendientes.</div></div>'; }
   if (mySentRequests.length) {
     html += `<div style="font-size:14px;font-weight:700;margin:16px 0 12px;">📨 Mis solicitudes enviadas</div>`;
     for (const req of mySentRequests) {
       const name = recipMap[req.to_user_id] || 'Amigo';
       const time = new Date(req.created_at).toLocaleDateString('es-AR', { day:'numeric', month:'short' });
-      const statusLabel = req.status === 'pending' ? '<span class="status-badge status-pending">⏳ Pendiente</span>'
-        : req.status === 'confirmed' ? '<span class="status-badge status-confirmed">✅ Confirmada</span>'
-        : '<span class="status-badge status-rejected">❌ Rechazada</span>';
-      html += `<div class="request-card">
-        <div style="display:flex;align-items:center;justify-content:space-between;">
-          <div><span style="font-weight:600;">${name}</span> — <span class="request-sticker" style="font-size:12px;">${req.sticker_num}</span><div style="font-size:11px;color:var(--text-muted);margin-top:2px;">${time}</div></div>
-          ${statusLabel}
-        </div>
-      </div>`;
+      const statusLabel = req.status === 'pending' ? '<span class="status-badge status-pending">⏳ Pendiente</span>' : req.status === 'confirmed' ? '<span class="status-badge status-confirmed">✅ Confirmada</span>' : '<span class="status-badge status-rejected">❌ Rechazada</span>';
+      html += `<div class="request-card"><div style="display:flex;align-items:center;justify-content:space-between;"><div><span style="font-weight:600;">${name}</span> — <span class="request-sticker" style="font-size:12px;">${req.sticker_num}</span><div style="font-size:11px;color:var(--text-muted);margin-top:2px;">${time}</div></div>${statusLabel}</div></div>`;
     }
   }
-
   container.innerHTML = html || '<div class="empty">No hay solicitudes.</div>';
 }
 
@@ -768,27 +795,25 @@ async function renderReservas() {
   const container = document.getElementById('reservas-content');
   const senderIds = [...new Set(reservedForMe.map(r => r.from_user_id))];
   let senderMap = {};
-  if (senderIds.length) {
-    const { data } = await sb.from('profiles').select('id, name').in('id', senderIds);
-    if (data) for (const p of data) senderMap[p.id] = p.name;
-  }
+  if (senderIds.length) { const { data } = await sb.from('profiles').select('id, name').in('id', senderIds); if (data) for (const p of data) senderMap[p.id] = p; }
   let html = '';
   if (reservedForMe.length) {
     html += `<div class="reserved-section"><div class="reserved-title">🔖 Figuritas que me reservaron</div>`;
     const bySender = {};
     for (const r of reservedForMe) { if (!bySender[r.from_user_id]) bySender[r.from_user_id] = []; bySender[r.from_user_id].push(r.sticker_num); }
     for (const [sid, codes] of Object.entries(bySender)) {
-      html += `<div style="margin-bottom:10px;"><div style="font-size:12px;font-weight:600;color:var(--purple);margin-bottom:4px;">${senderMap[sid]||'Amigo'} te guardó:</div><div class="chips-wrap">`;
-      for (const c of codes) html += `
-  <div style="display:flex;align-items:center;gap:6px;margin-bottom:6px;">
-    <span class="chip chip-reserved">🔖 ${c}</span>
-    <button class="btn-small add" onclick="recibirFigurita('${c}','${sid}')">✅ Ya la tengo</button>
-  </div>`;
-      html += '</div></div>';
+      const name = senderMap[sid]?.name || 'Amigo';
+      html += `<div style="margin-bottom:12px;"><div style="font-size:12px;font-weight:600;color:var(--purple);margin-bottom:6px;">${name} te guardó:</div>`;
+      for (const c of codes) {
+        html += `<div style="display:flex;align-items:center;gap:8px;margin-bottom:6px;">
+          <span class="chip chip-reserved">🔖 ${c}</span>
+          <button class="btn-small add" onclick="recibirFigurita('${c}','${sid}')">✅ Ya la tengo</button>
+        </div>`;
+      }
+      html += '</div>';
     }
     html += '</div>';
   } else { html += '<div class="card"><div class="empty">Nadie te reservó figuritas todavía.</div></div>'; }
-
   if (myReservations.length) {
     const recipIds = [...new Set(myReservations.map(r => r.to_user_id))];
     const { data: recips } = await sb.from('profiles').select('id, name').in('id', recipIds);
@@ -806,31 +831,7 @@ async function renderReservas() {
   }
   container.innerHTML = html || '<div class="empty">No tenés reservas activas.</div>';
 }
-async function recibirFigurita(code, fromUserId) {
-  // marcar en el álbum
-  const sd = myStickers[code] || { state: 'missing', repeated: 0 };
-  myStickers[code] = { state: 'have', repeated: sd.repeated };
-  await sb.from('stickers').upsert(
-    { user_id: currentUser.id, sticker_num: code, state: 'have', repeated: sd.repeated },
-    { onConflict: 'user_id,sticker_num' }
-  );
-  // borrar la reserva
-  await sb.from('reservations')
-    .delete()
-    .eq('from_user_id', fromUserId)
-    .eq('to_user_id', currentUser.id)
-    .eq('sticker_num', code);
-  // borrar la reservation_request confirmada
-  await sb.from('reservation_requests')
-    .delete()
-    .eq('from_user_id', fromUserId)
-    .eq('to_user_id', currentUser.id)
-    .eq('sticker_num', code);
-  await loadReservations();
-  renderReservas();
-  updateStats();
-  showToast('🎉 ' + code + ' agregada a tu álbum');
-}
+
 (async () => {
   const { data } = await sb.auth.getSession();
   if (data?.session?.user) { currentUser = data.session.user; await enterApp(); }
