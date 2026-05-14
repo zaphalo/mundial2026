@@ -635,8 +635,15 @@ async function showIntercambio(friendId, friendName) {
   const { data } = await sb.from('stickers').select('*').eq('user_id', friendId);
   const fs = {};
   if (data) for (const r of data) fs[r.sticker_num] = { state: r.state, repeated: r.repeated };
-
-  const iCanGive = ALL.filter(s => { const m = getState(s.code); const t = fs[s.code]||{state:'missing',repeated:0}; return m.repeated > 0 && t.state !== 'have'; });
+  
+const iCanGive = ALL.filter(s => {
+  const m = getState(s.code);
+  const t = fs[s.code]||{state:'missing',repeated:0};
+  if (m.repeated === 0 || t.state === 'have') return false;
+  // contar cuántas repetidas tengo vs cuántas ya reservé para otros
+  const totalReserved = myReservations.filter(r => r.sticker_num === s.code).length;
+  return m.repeated > totalReserved;
+});
   const theyCanGive = ALL.filter(s => { const m = getState(s.code); const t = fs[s.code]||{state:'missing',repeated:0}; return t.repeated > 0 && m.state !== 'have'; });
 
   let html = `<div class="card">
