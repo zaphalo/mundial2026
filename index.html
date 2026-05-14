@@ -536,18 +536,33 @@ async function respondRequest(requestId, status) {
 }
 
 async function recibirFigurita(code, fromUserId) {
+  // marcar en mi álbum
   const sd = myStickers[code] || { state: 'missing', repeated: 0 };
   myStickers[code] = { state: 'have', repeated: sd.repeated };
   await sb.from('stickers').upsert(
     { user_id: currentUser.id, sticker_num: code, state: 'have', repeated: sd.repeated },
     { onConflict: 'user_id,sticker_num' }
   );
+
+  // restarle una repetida al amigo
+  const { data: friendSticker } = await sb.from('stickers')
+    .select('*').eq('user_id', fromUserId).eq('sticker_num', code).single();
+  if (friendSticker) {
+    const newRep = Math.max(0, friendSticker.repeated - 1);
+    const newState = newRep === 0 && friendSticker.state === 'have' ? 'have' : friendSticker.state;
+    await sb.from('stickers').upsert(
+      { user_id: fromUserId, sticker_num: code, state: newState, repeated: newRep },
+      { onConflict: 'user_id,sticker_num' }
+    );
+  }
+
+  // borrar la reserva y la solicitud
   await sb.from('reservations').delete().eq('from_user_id', fromUserId).eq('to_user_id', currentUser.id).eq('sticker_num', code);
   await sb.from('reservation_requests').delete().eq('from_user_id', fromUserId).eq('to_user_id', currentUser.id).eq('sticker_num', code);
+
   await loadReservations(); renderReservas(); updateStats();
   showToast('🎉 ' + code + ' agregada a tu álbum');
 }
-
 async function toggleReservation(code, toUserId, toName) {
   const already = isReservedByMe(code, toUserId);
   if (already) {
