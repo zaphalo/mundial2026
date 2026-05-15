@@ -561,7 +561,7 @@ async function recibirFigurita(code, fromUserId) {
   await sb.from('reservation_requests').delete().eq('from_user_id', fromUserId).eq('to_user_id', currentUser.id).eq('sticker_num', code);
 
   reservedForMe = reservedForMe.filter(r => !(r.sticker_num === code && r.from_user_id === fromUserId));
-await loadReservations(); renderReservas(); updateStats();
+await loadReservations(); await renderReservas(); updateStats();
   
   showToast('🎉 ' + code + ' agregada a tu álbum');
 }
